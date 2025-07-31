@@ -3,6 +3,7 @@ library(tidyverse)
 library(lubridate)
 library(calecopal)
 library(janitor)
+library(cowplot)
 
 # Lea's chosen color palette
 
