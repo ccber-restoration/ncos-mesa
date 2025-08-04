@@ -93,7 +93,8 @@ plot_lower2 <- ggplot(lower_long, aes(x=timestamp, y=vwc, col=port)) +
 plot_lower2
 
 fig_vwc <- plot_grid(plot_upper1, plot_lower1, plot_upper2, plot_lower2,
-                     nrow = 2)
+                     nrow = 2) 
+ 
 
 fig_vwc
 
@@ -112,7 +113,7 @@ ggsave("figures/Mesa_Slope_VWC_2025-07-27.pdf",
 
 #read in data
 
-mesa_gwc <- read_csv("data/mesa_slope_gravimetric_soil_data_reformatted.csv") %>% 
+mesa_gwc <- read_csv("data/mesa_slope_gravimetric_soil_data_2025-08-04.csv") %>% 
   separate_wider_delim(sample_id, 
                        names = c("site", "sample", "depth_in"), 
                        delim = "_", cols_remove = FALSE) %>%
@@ -146,7 +147,8 @@ fig_gwc <- ggplot(data = mesa_gwc_filter, aes(x = sample_date, y = soil_moisture
   LA_theme +
   vwc_scale +
   xlab("Date") +
-  ylab("Volumetric water content")
+  ylab("Gravimetric water content") +
+  facet_wrap(vars(slope_position))
 
 fig_gwc
 
@@ -220,7 +222,7 @@ fig_upper_combined <- plot_upper1 +
   geom_vline(xintercept = as.numeric(as.POSIXct("2025-05-07")), linetype = "dotted") +
   geom_vline(xintercept = as.numeric(as.POSIXct("2025-06-01")), linetype = "dotted") +
   geom_vline(xintercept = as.numeric(as.POSIXct("2025-07-17")), linetype = "dotted") +
-  geom_point(data = gwc_upper, 
+  geom_point(data = gwc_upper,
              aes(x = timestamp, y = soil_moisture, fill = depth)) +
   ylab("Water content") +
   xlab("Date")
@@ -241,12 +243,25 @@ fig_lower_combined <- plot_lower1 +
   
 fig_lower_combined
 
-fig_combined <- plot_grid(fig_upper_combined, fig_lower_combined,
+
+legend <- get_legend(fig_upper_combined)
+
+fig_combined <- plot_grid(fig_upper_combined + 
+                            theme(legend.position = "none") + 
+                            ggtitle("Upper slope"), 
+                          fig_lower_combined + 
+                            theme(legend.position = "none") +
+                            ggtitle("Lower slope")
+                          ,
+                          legend,
+                          rel_widths = c(1,1,0.3),
                           nrow = 1)
 
 fig_combined
 
-ggsave("figures/mesa_slope_water_content_comparison_2025-08-01.pdf",
-       fig_combined)
+ggsave("figures/mesa_slope_water_content_comparison_2025-08-04.pdf",
+       fig_combined,
+       width = 180,
+       units = "mm")
 
 
