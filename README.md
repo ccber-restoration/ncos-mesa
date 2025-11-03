@@ -1,6 +1,6 @@
 # Overview
 
-This repository is for working with data on the soil characteristics of the "Mesa Slope" in North Campus Open Space, to explore how they may be influencing the plant community.
+This repository was originally created for working with data on the soil characteristics of the "Mesa Slope" in North Campus Open Space (specifically volumetric water content collected in the first half of 2025), to explore how they may be influencing the plant community. The scope has since been expanded to broadly encompass soil and plant research taking place on the the Mesa area. This could include research related to soil amendments, vegetation in burn plots, among other foci.
 
 # Data
 
