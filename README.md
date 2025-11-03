@@ -13,6 +13,10 @@ This repository was originally created for working with data on the soil charact
 -  Lara Roelofs continued work on soil salinity and moisture during summer 2025: Grassland_salinity_2025 (1).xlsx
 -  Emilee Doering continued work on soil salinity, moisture, texture and veg cover in fall 2025: NCOS Mesa Soil Data 10_20_2025.xlsx
 
+## ArcGIS Online
+
+- See "NCOS_Mesa_Slopes_Soil_Samples" feature layer
+
 # Code
 
 -  00_setup.R does some set up for plotting volumetric water content data (Jan-July 2025)
@@ -25,6 +29,4 @@ This repository was originally created for working with data on the soil charact
     -    Salinity dS.png       
 
 
-# ArcGIS Online
 
-- See "NCOS_Mesa_Slopes_Soil_Samples" feature layer
