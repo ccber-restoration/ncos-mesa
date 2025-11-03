@@ -11,7 +11,7 @@ This repository was originally created for working with data on the soil charact
 -  Volumetric water content is continuously collected by a sensor array starting 2025-01-29.
 
 -  Lara Roelofs continued work on soil salinity and moisture during summer 2025: Grassland_salinity_2025 (1).xlsx
--  Emile Doering continued work on soil salinity, moisture, texture and veg cover in fall 2025: NCOS Mesa Soil Data 10_20_2025.xlsx
+-  Emilee Doering continued work on soil salinity, moisture, texture and veg cover in fall 2025: NCOS Mesa Soil Data 10_20_2025.xlsx
 
 # Code
 
