@@ -12,6 +12,13 @@ This repository is for working with data on the soil characteristics of the "Mes
 
 -  Lara Roelofs continued work on soil salinity and moisture during summer 2025.
 
+# Code
+
+-  00_setup.R does some set up for plotting volumetric water content data (Jan-July 2025)
+-  mesa_soils.R plots volumetric water content data and gravimetric water content together (Jan-July 2025)
+-  sep2025_salinity_moisture_texture_cover.R was written by Lara Roelofs for working with salinity, moisture, soil texture, and veg cover (summer 2025) 
+
+
 # ArcGIS Online
 
 - See "NCOS_Mesa_Slopes_Soil_Samples" feature layer
