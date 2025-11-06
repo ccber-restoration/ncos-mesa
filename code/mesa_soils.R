@@ -137,7 +137,8 @@ mesa_gwc_filter <- mesa_gwc %>%
       depth_in == "18" ~ "deep"
     )
     
-    )
+    ) %>% 
+  clean_names()
 
 #plot over time
 
