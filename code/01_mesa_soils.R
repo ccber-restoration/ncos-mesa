@@ -5,7 +5,7 @@ source("code/00_setup.R")
 
 ## upper array ----
 # load in upper VWC sensor data
-upper <- read_csv("data/z6B01375 27Jul25-1901upperall.csv", na = c("NA", "", "#N/A")) %>% 
+upper <- read_csv("data/volumetric_water_content/z6B01375 27Jul25-1901upperall.csv", na = c("NA", "", "#N/A")) %>% 
   #clean up names
   clean_names() %>% 
   #reformat timestamp as a proper date-time
@@ -26,7 +26,7 @@ upper_long <- upper %>%
 
 ## lower array data ----
 # load in lower VWC sensor data
-lower <- read_csv("data/z6B01383 27Jul25-1904lowerall.csv", na = c("NA", "", "#N/A")) %>% 
+lower <- read_csv("data/volumetric_water_content/z6B01383 27Jul25-1904lowerall.csv", na = c("NA", "", "#N/A")) %>% 
   #clean up names
   clean_names() %>% 
   #reformat timestamp as a proper date-time
@@ -113,7 +113,7 @@ ggsave("figures/Mesa_Slope_VWC_2025-07-27.pdf",
 
 #read in data
 
-mesa_gwc <- read_csv("data/mesa_slope_gravimetric_soil_data_2025-08-04.csv") %>% 
+mesa_gwc <- read_csv("data/soil_samples/mesa_slope_gravimetric_soil_data_2025-08-04.csv") %>% 
   separate_wider_delim(sample_id, 
                        names = c("site", "sample", "depth_in"), 
                        delim = "_", cols_remove = FALSE) %>%
@@ -231,12 +231,12 @@ fig_upper_combined <- plot_upper1 +
 fig_upper_combined 
 
 fig_lower_combined <- plot_lower1 +
-  geom_vline(xintercept = as.numeric(as.POSIXct("2025-02-28")), linetype = "dotted") +
-  geom_vline(xintercept = as.numeric(as.POSIXct("2025-04-07")), linetype = "dotted") +
-  geom_vline(xintercept = as.numeric(as.POSIXct("2025-04-23")), linetype = "dotted") +
-  geom_vline(xintercept = as.numeric(as.POSIXct("2025-05-07")), linetype = "dotted") +
-  geom_vline(xintercept = as.numeric(as.POSIXct("2025-06-01")), linetype = "dotted") +
-  geom_vline(xintercept = as.numeric(as.POSIXct("2025-07-17")), linetype = "dotted") +
+  #geom_vline(xintercept = as.numeric(as.POSIXct("2025-02-28")), linetype = "dotted") +
+  #geom_vline(xintercept = as.numeric(as.POSIXct("2025-04-07")), linetype = "dotted") +
+  #geom_vline(xintercept = as.numeric(as.POSIXct("2025-04-23")), linetype = "dotted") +
+  #geom_vline(xintercept = as.numeric(as.POSIXct("2025-05-07")), linetype = "dotted") +
+  #geom_vline(xintercept = as.numeric(as.POSIXct("2025-06-01")), linetype = "dotted") +
+  #geom_vline(xintercept = as.numeric(as.POSIXct("2025-07-17")), linetype = "dotted") +
   geom_point(data = gwc_lower, 
              aes(x = timestamp, y = soil_moisture, fill = depth)) +
   ylab("Water content") +
