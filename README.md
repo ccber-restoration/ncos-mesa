@@ -35,7 +35,7 @@ Note that scripts that were not originally written within this repository are st
 
 FHJ modified some of them to run within this repository.
 
-** NEEDS UPDATING**
+**NEEDS UPDATING**
 
 -  00_setup.R does some set up for plotting volumetric water content data (Jan-July 2025)
 -  mesa_soils.R plots volumetric water content data and gravimetric water content together (Jan-July 2025)
