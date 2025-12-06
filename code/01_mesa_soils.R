@@ -50,7 +50,7 @@ lower_long <- lower %>%
 vwc_scale <- scale_y_continuous(limits = c(0,0.7))
 
 
-#plot1 with upper lable and colored by depth
+#plot1 with upper label and colored by depth
 plot_upper1 <- ggplot(upper_long, aes(x=timestamp, y=vwc, col=depth)) + 
   geom_line(aes(group = port)) +
   ggtitle("Upper") +
