@@ -37,7 +37,6 @@ FHJ modified some of them to run within this repository.
 **NEEDS UPDATING**
 
 -  00_setup.R does some set up for plotting volumetric water content data (Jan-July 2025)
--  01_
 -  mesa_soils.R plots volumetric water content data and gravimetric water content together (Jan-July 2025)
 -  sep2025_salinity_moisture_texture_cover.R was written by Lara Roelofs for working with salinity, moisture, soil texture, and veg cover (summer 2025). Produces the following figures:
     -    soil texture.png
