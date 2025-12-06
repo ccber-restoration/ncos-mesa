@@ -4,6 +4,7 @@ library(lubridate)
 library(calecopal)
 library(janitor)
 library(cowplot)
+library(scales)
 
 # Lea's chosen color palette
 
