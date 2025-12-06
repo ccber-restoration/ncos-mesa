@@ -1,8 +1,6 @@
 # set up ----
 source("code/00_setup.R")
 
-library(scales)
-
 #Volumetric water content ----
 
 ## upper array ----
