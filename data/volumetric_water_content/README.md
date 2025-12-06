@@ -6,6 +6,8 @@ with subfolders for the upper and lower arrays.
 
 Each array has 6 sensors (ECH2O EC-5 Soil Moisture Sensor; https://metergroup.com/products/ech20-ec-5-soil-moisture-sensor) by METER (formerly Decagon)).
 
+Three sensors (ports 1,3,5) in each array are at 6 inch (15 cm) depth (= "shallow"), and three sensors (ports 2,4,6) are at 18 inch (45 cm) depth (= "deep").
+
 Data are recorded on a METER ZL6 BasicSimple Data Logger (https://metergroup.com/products/zl6-basic/). 
 
 Ports 1-6 record sensor data. Port 7 records battery percentage and voltage (mV).
