@@ -4,7 +4,7 @@
 Data downloaded in the field are added to this Google Drive folder: https://drive.google.com/drive/folders/1b_G3JgG-pnD9voulFOIRsjLpg4QYhmSk,
 with subfolders for the upper and lower arrays.
 
-Each array has 6 sensors (ECH2O EC-5 Soil Moisture Sensor; https://metergroup.com/products/ech20-ec-5-soil-moisture-sensor) by METER (formerly Decagon).
+Each array has 6 sensors (ECH2O EC-5 Soil Moisture Sensor; https://metergroup.com/products/ech20-ec-5-soil-moisture-sensor) by METER (formerly Decagon)).
 
 Data are recorded on a METER ZL6 BasicSimple Data Logger (https://metergroup.com/products/zl6-basic/). 
 
