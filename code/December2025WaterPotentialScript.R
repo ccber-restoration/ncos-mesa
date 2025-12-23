@@ -1,4 +1,4 @@
-### Script for 12/3/2025 water potentials from upper &lower mesa and sp reference site ##
+### Script for 12/3/2025 water potentials from upper & lower mesa and SP reference site ##
 # Load packages
 library(scales)
 library(readr)
