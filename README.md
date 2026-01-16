@@ -6,6 +6,12 @@ This repository is for soil and plant research research on the "Mesa Slope" area
 
 Note that this repository generally uses .csv copies of data files, but the original/raw/working versions of some data sets are on Google Drive or on ArcGIS Online.
 
+## Spatial data (e.g. plot boundaries)
+
+-  For the "biochar"/"amendment" experiment, plot boundaries (50 * 200 ft, with 8 25*50 ft subplots) for the three plots (West, Central, and East) are in these layers on AGOL:
+  -  NCOS_Biochar_Exprmnt_Plot
+  -  NCOS_Soil_Amendment_Plots
+
 ## Soil
 
 -  Volumetric water content is continuously collected by a sensor array starting 2025-01-29.
