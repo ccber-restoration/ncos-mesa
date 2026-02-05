@@ -4,13 +4,19 @@ library(tidyverse)
 library(janitor)
 library(cowplot)
 
+#load custom function for estimating salinity in more standard units
+#estimate dS per m from 5:1 method ()
+
+source("code/mS_per_cm_to_dS_per_m.R")
+
+
 soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-02-04.csv") %>% 
   clean_names() %>% 
   mutate(subplot = as.factor(subplot),
-         depth_midpoint = -(depth_top + depth_bottom)/2
+         depth_midpoint = -(depth_top + depth_bottom)/2,
+         ec_ds_per_m = uS_per_cm_to_dS_per_m(e_c_u_s_cm)
          ) 
  
-
 fig_moisture <- ggplot(data = soils_2026_winter, aes(x = depth, y = percent_soil_moisture, color= subplot)) +
   geom_point() +
   theme_cowplot() +
@@ -51,12 +57,12 @@ fig_moisture_profile <- ggplot(data = soils_2026_winter, aes(y = depth_midpoint,
 
 fig_moisture_profile
 
-fig_conductivity_profile <- ggplot(data = soils_2026_winter, aes(y = depth_midpoint, x = e_c_u_s_cm, color = subplot)) +
+fig_conductivity_profile <- ggplot(data = soils_2026_winter, aes(y = depth_midpoint, x = ec_ds_per_m, color = subplot)) +
   geom_point() +
   geom_path() +
   theme_cowplot() +
   ylab("Sample depth (cm)") +
-  xlab("Conductivity (microSiemens/cm)") +
+  xlab("Estimated conductivity (dS/m)") +
   scale_y_continuous(limits = c(NA,0)) +
   scale_x_continuous(limits = c(0,NA))
 
@@ -71,5 +77,45 @@ fig_WP_winter_profile
 
 ggsave(plot = fig_WP_winter_profile, filename = "figures/Winter_2026_West_Plot_depth_profiles_DRAFT.pdf")
 
+
+
+# alternate version using coord_flip ----
+
+fig_moisture_flip <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = percent_soil_moisture, color = subplot)) +
+  geom_point() +
+  geom_path() +
+  xlab("Sample depth (cm)") +
+  ylab("% moisture") +
+  coord_flip() +
+  theme_cowplot() +
+  scale_x_continuous(limits = c(NA,0)) +
+  scale_y_continuous(
+    limits = c(0,NA), 
+                     position = "right") +
+  labs(title = "West Plot, Jan 2026")
+
+fig_moisture_flip
+
+fig_EC_flip <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = ec_ds_per_m, color = subplot)) +
+  geom_point() +
+  geom_path() +
+  theme_cowplot() +
+  coord_flip() +
+  xlab("Sample depth (cm)") +
+  ylab("Estimated conductivity (dS/m)") +
+  scale_x_continuous(limits = c(NA,0)) +
+  scale_y_continuous(limits = c(0,NA), position = "right") +
+  labs(title = " ")
+  
+
+fig_EC_flip
+
+#assemble 2-panel figure
+fig_west_plot_winter_2026 <- plot_grid(fig_moisture_flip, fig_EC_flip,
+                                   nrow = 1)
+
+fig_west_plot_winter_2026
+
+ggsave(plot = fig_west_plot_winter_2026, filename = "figures/Winter_2026_West_Plot_depth_profiles_DRAFT_2026-02-05.pdf")
 
 
