@@ -46,7 +46,8 @@ fig_moisture_profile <- ggplot(data = soils_2026_winter, aes(y = depth_midpoint,
   xlab("% moisture") +
   theme_cowplot() +
   scale_y_continuous(limits = c(NA,0)) +
-  scale_x_continuous(limits = c(0,NA))
+  scale_x_continuous(limits = c(0,NA)) +
+  labs(title = "West Plot, Jan 2026")
 
 fig_moisture_profile
 
