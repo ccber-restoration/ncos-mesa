@@ -21,3 +21,8 @@ LA_theme <- theme(panel.background = element_rect(fill='white', colour='black'),
       panel.grid.major = element_blank(),  # Hide major gridlines
       panel.grid.minor = element_blank()
       )  # Hide minor gridlines
+
+
+# custom function for estimating dS per m from 5:1 method ()
+
+source("code/mS_per_cm_to_dS_per_m.R")
