@@ -80,6 +80,8 @@ ggsave(plot = fig_WP_winter_profile, filename = "figures/Winter_2026_West_Plot_d
 
 
 # alternate version using coord_flip ----
+#based on this blog: https://rdoodles.rbind.io/2018/09/a-simple-ggplot-of-some-measure-against-depth/#:~:text=Second%20%E2%80%93%20make%20ggplot,TAGGED%20IN
+
 
 fig_moisture_flip <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = percent_soil_moisture, color = subplot)) +
   geom_point() +
