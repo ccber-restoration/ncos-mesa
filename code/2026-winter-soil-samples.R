@@ -15,10 +15,18 @@ soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-02-04.cs
   clean_names() %>% 
   mutate(subplot = as.factor(subplot),
          depth_midpoint = -(depth_top + depth_bottom)/2,
-         ec_ds_per_m = uS_per_cm_to_dS_per_m(e_c_u_s_cm)
+         ec_ds_per_m = uS_per_cm_to_dS_per_m(e_c_u_s_cm),
+         ec_converted = (e_c_u_s_cm/1000)*5
          ) 
  
-
+# compare estimates
+ggplot(data = soils_2026_winter, aes(x = ec_converted, y = ec_ds_per_m)) +
+  geom_point() +
+  #add 1:1 line
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  scale_x_continuous(limits = c(0,NA)) +
+  scale_y_continuous(limits = c(0, NA))
+  
 # first draft ----
 
 fig_moisture <- ggplot(data = soils_2026_winter, aes(x = depth, y = percent_soil_moisture, color= subplot)) +
