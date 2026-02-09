@@ -11,7 +11,7 @@ source("code/mS_per_cm_to_dS_per_m.R")
 
 #read in data, get depth midpoints, and estimate EC in dS/m
 
-soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-02-04.csv") %>% 
+soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-02-09.csv") %>% 
   clean_names() %>% 
   mutate(subplot = as.factor(subplot),
          depth_midpoint = -(depth_top + depth_bottom)/2,
@@ -53,7 +53,7 @@ fig_WP_winter <- plot_grid(fig_moisture, fig_conductivity,
 
 fig_WP_winter
 
-ggsave(filename = "figures/Winter_2026_West_Plot_moisture_conductivity_DRAFT.pdf")
+#ggsave(filename = "figures/Winter_2026_West_Plot_moisture_conductivity_DRAFT.pdf")
 
 # second draft- re-do figures as depth profiles ----
 
@@ -87,14 +87,13 @@ fig_WP_winter_profile <- plot_grid(fig_moisture_profile, fig_conductivity_profil
 
 fig_WP_winter_profile
 
-ggsave(plot = fig_WP_winter_profile, filename = "figures/Winter_2026_West_Plot_depth_profiles_DRAFT.pdf")
+#ggsave(plot = fig_WP_winter_profile, filename = "figures/Winter_2026_West_Plot_depth_profiles_DRAFT.pdf")
 
 
 
 
 # third draft- alternate version using coord_flip ----
 #based on this blog: https://rdoodles.rbind.io/2018/09/a-simple-ggplot-of-some-measure-against-depth/#:~:text=Second%20%E2%80%93%20make%20ggplot,TAGGED%20IN
-
 
 fig_moisture_flip <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = percent_soil_moisture, color = subplot)) +
   geom_point() +
@@ -107,7 +106,7 @@ fig_moisture_flip <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y 
   scale_y_continuous(
     limits = c(0,NA), 
                      position = "right") +
-  labs(title = "West Plot, Jan 2026")
+  labs(title = "NCOS Mesa West Plot, Jan-Feb 2026")
 
 fig_moisture_flip
 
@@ -125,10 +124,11 @@ fig_EC_flip <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = ec_d
 fig_EC_flip
 
 #assemble 2-panel figure
-fig_west_plot_winter_2026 <- plot_grid(fig_moisture_flip, fig_EC_flip,
+fig_west_plot_winter_2026 <- plot_grid(fig_moisture_flip + theme(legend.position = "none"), 
+                                       fig_EC_flip + theme(legend.position = c(0.6, 0.8)),
                                    nrow = 1)
 
 fig_west_plot_winter_2026
 
-ggsave(plot = fig_west_plot_winter_2026, filename = "figures/Winter_2026_West_Plot_depth_profiles_DRAFT_2026-02-05.pdf")
+ggsave(plot = fig_west_plot_winter_2026, filename = "figures/Winter_2026_West_Plot_depth_profiles_DRAFT_2026-02-09.pdf")
 
