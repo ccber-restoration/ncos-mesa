@@ -37,7 +37,7 @@ upper_long <- upper %>%
 #note, seems data logger reverted to default time sometime after 2025-10-29 02:00:00
 #time was reset on "2025-11-07 14:00:00"?
 
-lower <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/z6B01383 05Dec25-1318_Lower_All_Rows.xlsx", 
+lower <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 26Jan26-1117.xlsx", 
                            sheet = "Processed Data Config 1",
                            col_names = c("Timestamp",	"Port1_VWC",	"Port2_VWC",	"Port3_VWC",	"Port4_VWC",	"Port5_VWC",	"Port6_VWC",	"Bat_percent",	"mV.Battery.Voltage"),
                            col_types = c("date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), 
@@ -89,10 +89,12 @@ plot_upper2
 plot_lower1 <- ggplot(lower_long, aes(x=timestamp, y=vwc, col=depth)) + 
   geom_line(aes(group = port)) +
   ggtitle("Lower") +
-  scale_x_datetime(date_breaks = "2 month",
-                   date_labels = "%b") + 
+  scale_x_datetime(date_breaks = "1 month",
+                   date_labels = "%b %Y") + 
   LA_theme +
-  vwc_scale
+  vwc_scale +
+  ylab("Volumetric water content") +
+  xlab("Date")
 
 plot_lower1
 
@@ -119,15 +121,15 @@ fig_vwc
 # two-panel version
 
 date_scale <- scale_x_datetime(date_breaks = "1 month", 
-                               date_labels = "%b",
-                               limits = c(as.POSIXct("2025-01-15"), as.POSIXct("2025-12-15")))
+                               date_labels = "%b '%y",
+                               limits = c(as.POSIXct("2025-01-15"), as.POSIXct("2026-01-31")))
 
-fig_vwc_2_panel <- plot_grid(plot_upper1 + date_scale + xlab("Timestamp") + ylab("VWC"), 
-                             plot_lower1 + date_scale + xlab("Timestamp") + ylab("VWC"),
+fig_vwc_2_panel <- plot_grid(plot_upper1 + date_scale + xlab("Date") + ylab("VWC"), 
+                             plot_lower1 + date_scale + xlab("Date") + ylab("VWC"),
                              nrow = 2,
                              align = "v")
 
 fig_vwc_2_panel
 
 
-ggsave("figures/vwc/Mesa_Slope_VWC_2025-12-06.pdf")
+ggsave("figures/vwc/Mesa_Slope_VWC_2026-01-26.pdf")
