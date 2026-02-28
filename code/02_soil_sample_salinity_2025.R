@@ -9,7 +9,7 @@
 
 #read in data
 
-mesa_gwc <- read_csv("data/mesa_slope_gravimetric_soil_data_2025-09-04.csv") %>% 
+mesa_gwc <- read_csv("data/soil_samples/mesa_slope_gravimetric_soil_data_2025-09-04.csv") %>% 
   separate_wider_delim(sample_id, 
                        names = c("site", "sample", "depth_in"), 
                        delim = "_", cols_remove = FALSE) %>%
