@@ -16,18 +16,22 @@ Water content (m³/m³) is recorded at 60-minute intervals.
 
 Measurement volume is ~0.2 L.
 
+#FHJ 2026-03-02 note on location: the metadata from the logger files do not include the exact locations of the arrays. Would be great to get those. 
+
 ## Temporal coverage
 
 Sensor was first deployed on 2025-01-29.
 
 Download dates:
 
-- 2025-05-14 (May)
-- 2025-06-08 (June)
-- 2025-07-27 (July)
-- 2025-09-04 (September)
-- 2025-11-11 (November)
-- 2025-12-05 (December)
+- 2025-05-14
+- 2025-06-08 
+- 2025-07-27 
+- 2025-09-04 
+- 2025-11-11 
+- 2025-12-05 
+- 2026-01-26 
+- 2026-03-02
 
 Known gaps:
 
