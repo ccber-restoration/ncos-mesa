@@ -27,7 +27,7 @@ calecopal::cal_palette("arbutus",
 colors <- c("#DFE3CE", "#C7D38F", "#AEC366", "#96B07D", "#9C9D82", "#C18976", "#B47565", "#976153")
 
 #read in data, get depth midpoints, and estimate EC in dS/m
-soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-02-27.csv") %>% 
+soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-03-01.csv") %>% 
   clean_names() %>% 
   mutate(subplot = as.factor(subplot),
          depth_midpoint = -(depth_top + depth_bottom)/2,
@@ -196,7 +196,7 @@ fig_cp_plot_winter_2026 <- plot_grid(fig_cp_moisture + theme(legend.position = "
 fig_cp_plot_winter_2026
 
 ggsave(plot = fig_cp_plot_winter_2026, 
-       filename = "figures/soil_cores/Winter_2026_Central_Plot_depth_profiles_2026-02-27.pdf",
+       filename = "figures/soil_cores/Winter_2026_Central_Plot_depth_profiles_2026-03-01.pdf",
        width = 8,
        height = 5,
        units = "in")
