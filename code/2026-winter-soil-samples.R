@@ -38,11 +38,16 @@ soils_2026_winter <- read_csv("data/soil_samples/2026-winter-cores_2026-03-01.cs
          #subset ssc to the corresponding columns
          sand = sapply(ssc, `[[`, "sand"),
          silt = sapply(ssc, `[[`, "silt"),
-         clay = sapply(ssc, `[[`, "clay")
+         clay = sapply(ssc, `[[`, "clay"),
+         year = year(sample_date)
   ) %>%
   select(-ssc) %>%  # Remove temporary column
   #move quantitative columns next to texture
-  relocate(sand:clay, .after = texture_code)
+  relocate(sand:clay, .after = texture_code) %>% 
+  mutate(plot = case_match(plot,
+                           "CP" ~ "Central Plot",
+                           .default = plot)) %>% 
+  mutate(plot = relevel(as.factor(plot), "West Plot", .))
 
 
 # compare estimates
@@ -206,6 +211,33 @@ ggsave(plot = fig_cp_plot_winter_2026,
 
 
 # ~~~~~~~~~~~~~~~~~~~~~ ----
+
+# Faceted EC plot ----
+
+#calculate means for both plots combined
+mean_ec_2026 <- soils_2026_winter %>% 
+  group_by(plot, depth_midpoint) %>% 
+  summarize(mean_ec = mean(ec_ds_per_m, na.rm = TRUE),
+            n = n()) %>% 
+  ungroup()
+
+
+fig_2026_ec <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = ec_ds_per_m, color = subplot)) +
+  geom_path(data = mean_ec_2026, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 2) +
+  geom_point() +
+  geom_path() +
+  xlab("Sample depth (cm)") +
+  ylab("EC") +
+  coord_flip() +
+  theme_cowplot() +
+  facet_wrap(facets = vars(plot)) +
+  scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
+  scale_y_continuous(limits = c(0,NA), position = "left") +
+  labs(y = "Estimated EC (dS/m)", x = "Depth (bin midpoint, cm)", title = "Jan-Mar 2026") +
+  scale_color_ptol()
+
+fig_2026_ec
+
 # ~~~~~~~~~~~~~~~~~~~~~ ----
 # old code ----
 
