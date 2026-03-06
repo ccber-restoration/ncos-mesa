@@ -239,9 +239,9 @@ means_2026 <- soils_2026_winter %>%
 
 
 fig_2026_ec <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = ec_ds_per_m, color = subplot)) +
-  geom_path(data = means_2026, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 2) +
   geom_point() +
   geom_path() +
+  geom_path(data = means_2026, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 2) +
   xlab("Sample depth (cm)") +
   ylab("EC") +
   coord_flip() +
@@ -254,6 +254,7 @@ fig_2026_ec <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = ec_d
 
 fig_2026_ec
 
+#save to file
 ggsave(filename = "figures/soil_cores/winter_2026_EC_faceted.png",
        fig_2026_ec,
        width = 6,
@@ -261,11 +262,11 @@ ggsave(filename = "figures/soil_cores/winter_2026_EC_faceted.png",
        units = "in",
        bg = "white")
 
-## faceted moisture plot ---- 
+# Faceted moisture plot ---- 
 fig_2026_moisture <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = percent_soil_moisture, color = subplot)) +
-  geom_path(data = means_2026, aes(x = depth_midpoint, y = mean_moisture), color = "black", linewidth = 2) +
   geom_point() +
   geom_path() +
+  geom_path(data = means_2026, aes(x = depth_midpoint, y = mean_moisture), color = "black", linewidth = 2) +
   xlab("Sample depth (cm)") +
   ylab("EC") +
   coord_flip() +
