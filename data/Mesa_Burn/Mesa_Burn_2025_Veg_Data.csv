@@ -1,0 +1,664 @@
+Plot Name,species/cover,%cover,Date ,Monitors,Year
+C1,Bromus hordeaceus,5,,,2025
+C1,Stipa pulchra,65,,,2025
+C1,Brachypodium distachyon,8,,,2025
+C1,Thatch,25,,,2025
+C1,Bromus diandrus,1,,,2025
+C1,Festuca perennis,1,,,2025
+C1,Festuca myuros,1,,,2025
+C1,Avena fatua,1,,,2025
+C10,Festuca perennis,35,,,2025
+C10,Thatch,10,,,2025
+C10,Stipa pulchra,45,,,2025
+C10,Bromus diandrus,27,,,2025
+C10,Bromus hordeaceus,1,,,2025
+C10,Medicago polymorpha,1,,,2025
+C10,Brachypodium distachyon,1,,,2025
+C2,Stipa pulchra,22,,,2025
+C2,Festuca perennis,3,,,2025
+C2,Plantago lanceolata,5,,,2025
+C2,Hordeum murinum,2,,,2025
+C2,Brachypodium distachyon,40,,,2025
+C2,Bromus hordeaceus,1,,,2025
+C2,Thatch,35,,,2025
+C3,Festuca perennis,55,,,2025
+C3,Hordeum marinum,1,,,2025
+C3,Hordeum murinum,1,,,2025
+C3,Bromus hordeaceus,5,,,2025
+C3,Brachypodium distachyon,40,,,2025
+C3,Stipa pulchra,6,,,2025
+C3,Medicago polymorpha,1,,,2025
+C3,Avena fatua,1,,,2025
+C3,Thatch,20,,,2025
+C4,Festuca perennis,65,,,2025
+C4,Helminthotheca echioides,1,,,2025
+C4,Thatch,30,,,2025
+C4,Stipa pulchra,5,,,2025
+C4,Bromus hordeaceus,1,,,2025
+C4,Medicago polymorpha,10,,,2025
+C5,Brachypodium distachyon,12,,,2025
+C5,Festuca perennis,30,,,2025
+C5,Hordeum marinum,1,,,2025
+C5,Stipa pulchra,1,,,2025
+C5,Thatch,70,,,2025
+C6,Festuca perennis,20,,,2025
+C6,Stipa pulchra,7,,,2025
+C6,Brachypodium distachyon,20,,,2025
+C6,Bromus hordeaceus,1,,,2025
+C6,Thatch,60,,,2025
+C6,Bromus diandrus,5,,,2025
+C7,Festuca perennis,30,,,2025
+C7,Plantago lanceolata,1,,,2025
+C7,Stipa pulchra,16,,,2025
+C7,Bromus hordeaceus,11,,,2025
+C7,Brachypodium distachyon,3,,,2025
+C7,Avena fatua,1,,,2025
+C7,Thatch,50,,,2025
+C8,Festuca perennis,40,,,2025
+C8,Medicago polymorpha,1,,,2025
+C8,Bromus hordeaceus,1,,,2025
+C8,Stipa pulchra,5,,,2025
+C8,Thatch,60,,,2025
+C8,Brachypodium distachyon,1,,,2025
+C9,Stipa pulchra,10,,,2025
+C9,Brachypodium distachyon,65,,,2025
+C9,Festuca perennis,3,,,2025
+C9,Polypogon monspeliensis,1,,,2025
+C9,Festuca myuros,6,,,2025
+C9,Medicago polymorpha,1,,,2025
+C9,Thatch,11,,,2025
+C9,Bareground,9,,,2025
+CLAY13,Festuca perennis,75,,,2025
+CLAY13,Plantago lanceolata,2,,,2025
+CLAY13,Stipa pulchra,6,,,2025
+CLAY13,Bromus hordeaceus,3,,,2025
+CLAY13,Medicago polymorpha,2,,,2025
+CLAY13,Melilotus indicus,1,,,2025
+CLAY13,Madia sativa,1,,,2025
+CLAY13,Thatch,10,,,2025
+CLAY13,Brachypodium distachyon,1,,,2025
+CLAY13,Vicia villosa,1,,,2025
+CLAY1,Bareground,2,,,2025
+CLAY1,Thatch,5,,,2025
+CLAY1,Festuca perennis,35,,,2025
+CLAY1,Bromus hordeaceus,32,,,2025
+CLAY1,Stipa pulchra,2,,,2025
+CLAY1,Medicago polymorpha,15,,,2025
+CLAY1,Melilotus indicus,6,,,2025
+CLAY1,Deinandra fasciculata,5,,,2025
+CLAY10,Melilotus indicus,33,,,2025
+CLAY10,Medicago polymorpha,15,,,2025
+CLAY10,Bromus hordeaceus,1,,,2025
+CLAY10,Festuca perennis,50,,,2025
+CLAY10,Brachypodium distachyon,1,,,2025
+CLAY10,Thatch,8,,,2025
+CLAY10,Polypogon monspeliensis,1,,,2025
+CLAY10,Stipa pulchra,1,,,2025
+CLAY11,Festuca perennis,99,,,2025
+CLAY11,Melilotus indicus,3,,,2025
+CLAY11,Medicago polymorpha,2,,,2025
+CLAY11,Deinandra fasciculata,1,,,2025
+CLAY11,Plantago lanceolata,1,,,2025
+CLAY11,Bromus hordeaceus,1,,,2025
+CLAY12,Festuca perennis,85,,,2025
+CLAY12,Deinandra fasciculata,4,,,2025
+CLAY12,Hordeum marinum,10,,,2025
+CLAY12,Melilotus indicus,10,,,2025
+CLAY12,Stipa pulchra,1,,,2025
+CLAY12,Bromus hordeaceus,1,,,2025
+CLAY14,Centaurium tenuiflorum,1,,,2025
+CLAY14,Plantago lanceolata,25,,,2025
+CLAY14,Festuca perennis,35,,,2025
+CLAY14,Madia sativa,1,,,2025
+CLAY14,Melilotus indicus,10,,,2025
+CLAY14,Stipa pulchra,13,,,2025
+CLAY14,Medicago polymorpha,5,,,2025
+CLAY14,Bromus hordeaceus,11,,,2025
+CLAY14,Deinandra fasciculata,1,,,2025
+CLAY14,Bareground,1,,,2025
+CLAY14,Thatch,6,,,2025
+CLAY15,Melilotus indicus,38,,,2025
+CLAY15,Brachypodium distachyon,60,,,2025
+CLAY15,Festuca perennis,8,,,2025
+CLAY15,Bareground,1,,,2025
+CLAY15,Thatch,1,,,2025
+CLAY2,Melilotus indicus,30,,,2025
+CLAY2,Deinandra fasciculata,2,,,2025
+CLAY2,Festuca perennis,22,,,2025
+CLAY2,Bromus hordeaceus,2,,,2025
+CLAY2,Polypogon monspeliensis,4,,,2025
+CLAY2,Medicago polymorpha,13,,,2025
+CLAY2,Stipa pulchra,4,,,2025
+CLAY2,Trifolium tomentosum,10,,,2025
+CLAY2,Thatch,15,,,2025
+CLAY3,Hordeum brachyantherum,1,,,2025
+CLAY3,Centaurium tenuiflorum,1,,,2025
+CLAY3,Melilotus indicus,40,,,2025
+CLAY3,Bromus hordeaceus,1,,,2025
+CLAY3,Polypogon monspeliensis,3,,,2025
+CLAY3,Medicago polymorpha,15,,,2025
+CLAY3,Deinandra fasciculata,1,,,2025
+CLAY3,Bareground,15,,,2025
+CLAY3,Festuca perennis,30,,,2025
+CLAY3,Thatch,6,,,2025
+CLAY4,Melilotus indicus,25,,,2025
+CLAY4,Polypogon monspeliensis,15,,,2025
+CLAY4,Medicago polymorpha,35,,,2025
+CLAY4,Deinandra fasciculata,3,,,2025
+CLAY4,Festuca perennis,6,,,2025
+CLAY4,Helminthotheca echioides,1,,,2025
+CLAY4,Plantago coronopus,1,,,2025
+CLAY4,Thatch,2,,,2025
+CLAY4,Trifolium tomentosum,34,,,2025
+CLAY4,Acmispon americanus,10,,,2025
+CLAY5,Festuca perennis,50,,,2025
+CLAY5,Bromus hordeaceus,1,,,2025
+CLAY5,Melilotus indicus,15,,,2025
+CLAY5,Polypogon monspeliensis,1,,,2025
+CLAY5,Trifolium tomentosum,1,,,2025
+CLAY5,Centaurium tenuiflorum,1,,,2025
+CLAY5,Stipa pulchra,1,,,2025
+CLAY5,Thatch,10,,,2025
+CLAY5,Bareground,20,,,2025
+CLAY5,Medicago polymorpha,4,,,2025
+CLAY6,Stipa pulchra,5,,,2025
+CLAY6,Polypogon monspeliensis,10,,,2025
+CLAY6,Medicago polymorpha,3,,,2025
+CLAY6,Festuca perennis,20,,,2025
+CLAY6,Melilotus indicus,45,,,2025
+CLAY6,Centaurium tenuiflorum,1,,,2025
+CLAY6,Bromus hordeaceus,1,,,2025
+CLAY6,Trifolium tomentosum,4,,,2025
+CLAY6,Bareground,10,,,2025
+CLAY6,Thatch,5,,,2025
+CLAY7,Stipa pulchra,25,,,2025
+CLAY7,Melilotus indicus,20,,,2025
+CLAY7,Bromus hordeaceus,2,,,2025
+CLAY7,Avena fatua,1,,,2025
+CLAY7,Deinandra fasciculata,28,,,2025
+CLAY7,Centaurium tenuiflorum,1,,,2025
+CLAY7,Medicago polymorpha,14,,,2025
+CLAY7,Brachypodium distachyon,2,,,2025
+CLAY7,Acmispon americanus,7,,,2025
+CLAY7,Thatch,2,,,2025
+CLAY8,Festuca perennis,40,,,2025
+CLAY8,Madia sativa,1,,,2025
+CLAY8,Melilotus indicus,40,,,2025
+CLAY8,Deinandra fasciculata,1,,,2025
+CLAY8,Centaurium tenuiflorum,1,,,2025
+CLAY8,Symphyotrichum subulatum var. parviflorum,1,,,2025
+CLAY8,Bromus hordeaceus,2,,,2025
+CLAY8,Baccharis pilularis,1,,,2025
+CLAY8,Polypogon monspeliensis,3,,,2025
+CLAY8,Bareground,3,,,2025
+CLAY8,Stipa pulchra,1,,,2025
+CLAY8,Thatch,3,,,2025
+CLAY9,Festuca perennis,45,,,2025
+CLAY9,Deinandra fasciculata,12,,,2025
+CLAY9,Melilotus indicus,10,,,2025
+CLAY9,Medicago polymorpha,3,,,2025
+CLAY9,Bareground,30,,,2025
+CLAY9,Thatch,1,,,2025
+CLAY9,Bromus hordeaceus,1,,,2025
+CLAY9,Stipa pulchra,13,,,2025
+CLAY9,Hordeum marinum,1,,,2025
+CLAY9,Avena fatua,1,,,2025
+HBN1,Polypogon monspeliensis,10,,,2025
+HBN1,Deinandra fasciculata,2,,,2025
+HBN1,Melilotus indicus,45,,,2025
+HBN1,Festuca perennis,30,,,2025
+HBN1,Medicago polymorpha,5,,,2025
+HBN1,Plantago lanceolata,1,,,2025
+HBN1,Stipa pulchra,8,,,2025
+HBN1,Bromus hordeaceus,1,,,2025
+HBN1,Sisyrinchium bellum,1,,,2025
+HBN1,Sonchus sp.,1,,,2025
+HBN1,Thatch,5,,,2025
+HBN1,Bareground,2,,,2025
+HBN1,Festuca myuros,1,,,2025
+HBN2,Ambrosia psilostachya,2,,,2025
+HBN2,Melilotus indicus,20,,,2025
+HBN2,Hordeum marinum,10,,,2025
+HBN2,Festuca perennis,18,,,2025
+HBN2,Deinandra fasciculata,1,,,2025
+HBN2,Medicago polymorpha,15,,,2025
+HBN2,Stipa pulchra,8,,,2025
+HBN2,Bromus hordeaceus,1,,,2025
+HBN2,Bareground,35,,,2025
+HBN2,Thatch,2,,,2025
+HBN2,Helminthotheca echioides,1,,,2025
+HBN2,Plantago coronopus,1,,,2025
+HBN3,Festuca perennis,50,,,2025
+HBN3,Ambrosia psilostachya,9,,,2025
+HBN3,Medicago polymorpha,9,,,2025
+HBN3,Hordeum marinum,1,,,2025
+HBN3,Distichlis spicata,3,,,2025
+HBN3,Bareground,31,,,2025
+HBN3,Thatch,1,,,2025
+HBN3,Stipa pulchra,1,,,2025
+HBN3,Deinandra fasciculata,1,,,2025
+HBN3,Melilotus indicus,1,,,2025
+HBN3,Bromus hordeaceus,1,,,2025
+HBN4,Medicago polymorpha,95,,,2025
+HBN4,Helminthotheca echioides,3,,,2025
+HBN4,Festuca perennis,2,,,2025
+HBN4,Melilotus indicus,1,,,2025
+HBN4,Thatch,1,,,2025
+HBN5,Melilotus indicus,23,,,2025
+HBN5,Festuca perennis,55,,,2025
+HBN5,Bromus hordeaceus,1,,,2025
+HBN5,Medicago polymorpha,5,,,2025
+HBN5,Centaurium tenuiflorum,1,,,2025
+HBN5,Ambrosia psilostachya,1,,,2025
+HBN5,Stipa pulchra,15,,,2025
+HBN5,Thatch,10,,,2025
+HBN5,Deinandra fasciculata,1,,,2025
+HBN5,Bromus hordeaceus,1,,,2025
+HBN5,Polypogon monspeliensis,1,,,2025
+HBN5,Bareground,1,,,2025
+HBN5,Festuca myuros,1,,,2025
+HBN5,Helminthotheca echioides,1,,,2025
+HBN6,Festuca perennis,45,,,2025
+HBN6,Medicago polymorpha,30,,,2025
+HBN6,Melilotus indicus,1,,,2025
+HBN6,Thatch,25,,,2025
+HBN6,Helminthotheca echioides,1,,,2025
+HBN6,Stipa pulchra,1,,,2025
+HBN7,Stipa pulchra,15,,,2025
+HBN7,Helminthotheca echioides,45,,,2025
+HBN7,Melilotus indicus,3,,,2025
+HBN7,Medicago lupulina,1,,,2025
+HBN7,Festuca perennis,2,,,2025
+HBN7,Bareground,20,,,2025
+HBN7,Thatch,15,,,2025
+HBN8,Festuca perennis,30,,,2025
+HBN8,Stipa pulchra,1,,,2025
+HBN8,Melilotus indicus,40,,,2025
+HBN8,Sonchus sp.,1,,,2025
+HBN8,Thatch,1,,,2025
+HBN8,Bareground,1,,,2025
+HBN8,Polypogon monspeliensis,30,,,2025
+HBN8,Bromus hordeaceus,3,,,2025
+HBN8,Festuca myuros,2,,,2025
+HBNN1,Festuca perennis,70,,,2025
+HBNN1,Bromus hordeaceus,1,,,2025
+HBNN1,Melilotus indicus,6,,,2025
+HBNN1,Medicago polymorpha,2,,,2025
+HBNN1,Polypogon monspeliensis,1,,,2025
+HBNN1,Thatch,15,,,2025
+HBNN1,Festuca myuros,5,,,2025
+HBNN1,Bareground,1,,,2025
+HBNN1,Stipa pulchra,3,,,2025
+HBNN1,Helminthotheca echioides,1,,,2025
+HBNN2,Festuca perennis,95,,,2025
+HBNN2,Bareground,5,,,2025
+HBNN2,Thatch,2,,,2025
+HBNN2,Stipa pulchra,1,,,2025
+HBNN2,Polypogon monspeliensis,1,,,2025
+HBNN2,Bromus hordeaceus,1,,,2025
+HBNN3,Stipa pulchra,10,,,2025
+HBNN3,Deinandra fasciculata,1,,,2025
+HBNN3,Thatch,23,,,2025
+HBNN3,Bareground,2,,,2025
+HBNN3,Bromus tectorum,1,,,2025
+HBNN3,Festuca perennis,60,,,2025
+HBNN3,Bromus hordeaceus,1,,,2025
+HBNN3,Melilotus indicus,3,,,2025
+HBNN3,Medicago polymorpha,2,,,2025
+HBNN3,Polypogon monspeliensis,1,,,2025
+HBNN4,Ambrosia psilostachya,2,,,2025
+HBNN4,Festuca perennis,29,,,2025
+HBNN4,Medicago polymorpha,70,,,2025
+HBNN4,Bromus hordeaceus,10,,,2025
+HBNN4,Helminthotheca echioides,1,,,2025
+HBNN4,Thatch,1,,,2025
+HBNN5,Festuca perennis,40,,,2025
+HBNN5,Helminthotheca echioides,12,,,2025
+HBNN5,Deinandra fasciculata,8,,,2025
+HBNN5,Bromus hordeaceus,8,,,2025
+HBNN5,Melilotus indicus,9,,,2025
+HBNN5,Medicago polymorpha,17,,,2025
+HBNN5,Stipa pulchra,4,,,2025
+HBNN5,Polypogon monspeliensis,1,,,2025
+HBNN5,Festuca myuros,2,,,2025
+HBNN5,Thatch,10,,,2025
+HBNN6,Festuca perennis,50,,,2025
+HBNN6,Medicago polymorpha,5,,,2025
+HBNN6,Stipa pulchra,1,,,2025
+HBNN6,Helminthotheca echioides,1,,,2025
+HBNN6,Symphyotrichum subulatum var. parviflorum,1,,,2025
+HBNN6,Bareground,4,,,2025
+HBNN6,Thatch,45,,,2025
+HBNN6,Centaurium tenuiflorum,1,,,2025
+HBNN6,Sonchus sp.,1,,,2025
+HBNN7,Stipa pulchra,6,,,2025
+HBNN7,Festuca perennis,50,,,2025
+HBNN7,Bromus hordeaceus,15,,,2025
+HBNN7,Helminthotheca echioides,1,,,2025
+HBNN7,Medicago polymorpha,1,,,2025
+HBNN7,Thatch,30,,,2025
+HBNN8,Plantago coronopus,6,,,2025
+HBNN8,Polypogon monspeliensis,20,,,2025
+HBNN8,Festuca perennis,7,,,2025
+HBNN8,Bromus hordeaceus,4,,,2025
+HBNN8,Melilotus indicus,1,,,2025
+HBNN8,Medicago polymorpha,1,,,2025
+HBNN8,Bareground,70,,,2025
+HBNN8,Thatch,2,,,2025
+HBNN8,Stipa pulchra,1,,,2025
+HBNN8,Symphyotrichum subulatum var. parviflorum,1,,,2025
+LBN1,Medicago polymorpha,60,,,2025
+LBN1,Melilotus indicus,25,,,2025
+LBN1,Distichlis spicata,1,,,2025
+LBN1,Festuca perennis,25,,,2025
+LBN1,Thatch,1,,,2025
+LBN1,Bareground,1,,,2025
+LBN2,Plantago lanceolata,6,,,2025
+LBN2,Melilotus indicus,2,,,2025
+LBN2,Helminthotheca echioides,3,,,2025
+LBN2,Stipa pulchra,60,,,2025
+LBN2,Festuca perennis,35,,,2025
+LBN2,Bromus hordeaceus,4,,,2025
+LBN2,Avena fatua,4,,,2025
+LBN2,Brachypodium distachyon,2,,,2025
+LBN2,Thatch,5,,,2025
+LBN2,Bareground,1,,,2025
+LBN3,Melilotus indicus,16,,,2025
+LBN3,Festuca perennis,65,,,2025
+LBN3,Bromus hordeaceus,5,,,2025
+LBN3,Stipa pulchra,40,,,2025
+LBN3,Brachypodium distachyon,1,,,2025
+LBN3,Helminthotheca echioides,2,,,2025
+LBN3,Deinandra fasciculata,1,,,2025
+LBN3,Bareground,1,,,2025
+LBN3,Thatch,1,,,2025
+LBN3,Medicago polymorpha,1,,,2025
+LBN4,Melilotus indicus,4,,,2025
+LBN4,Ambrosia psilostachya,5,,,2025
+LBN4,Festuca perennis,48,,,2025
+LBN4,Medicago polymorpha,1,,,2025
+LBN4,Thatch,15,,,2025
+LBN4,Bareground,7,,,2025
+LBN4,Helminthotheca echioides,7,,,2025
+LBN4,Deinandra fasciculata,1,,,2025
+LBN4,Bromus hordeaceus,6,,,2025
+LBN4,Erigeron canadensis,1,,,2025
+LBN4,Hordeum marinum,1,,,2025
+LBN4,Brachypodium distachyon,1,,,2025
+LBN4,Stipa pulchra,8,,,2025
+LBN5,Stipa pulchra,35,,,2025
+LBN5,Medicago polymorpha,3,,,2025
+LBN5,Melilotus indicus,8,,,2025
+LBN5,Hordeum marinum,1,,,2025
+LBN5,Thatch,40,,,2025
+LBN5,Festuca perennis,5,,,2025
+LBN5,Bareground,5,,,2025
+LBN5,Bromus hordeaceus,2,,,2025
+LBN5,Deinandra fasciculata,2,,,2025
+LBN6,Deinandra fasciculata,1,,,2025
+LBN6,Helminthotheca echioides,8,,,2025
+LBN6,Melilotus indicus,1,,,2025
+LBN6,Polypogon monspeliensis,7,,,2025
+LBN6,Medicago polymorpha,40,,,2025
+LBN6,Festuca perennis,15,,,2025
+LBN6,Bromus hordeaceus,1,,,2025
+LBN6,Stipa pulchra,2,,,2025
+LBN6,Thatch,20,,,2025
+LBN6,Sonchus sp.,1,,,2025
+LBN6,Bareground,8,,,2025
+LBN7,Thatch,45,,,2025
+LBN7,Melilotus indicus,13,,,2025
+LBN7,Festuca perennis,35,,,2025
+LBN7,Stipa pulchra,10,,,2025
+LBN7,Medicago polymorpha,4,,,2025
+LBN7,Bromus hordeaceus,1,,,2025
+LBN8,Melilotus indicus,90,,,2025
+LBN8,Festuca myuros,1,,,2025
+LBN8,Plantago lanceolata,1,,,2025
+LBN8,Festuca perennis,5,,,2025
+LBN8,Stipa pulchra,3,,,2025
+LBN8,Bromus hordeaceus,1,,,2025
+LBN8,Medicago polymorpha,1,,,2025
+LBN8,Bareground,3,,,2025
+LBN8,Thatch,3,,,2025
+LBNN1,Hirschfeldia incana,1,,,2025
+LBNN1,Festuca perennis,100,,,2025
+LBNN1,Medicago polymorpha,1,,,2025
+LBNN1,Thatch,30,,,2025
+LBNN2,Festuca perennis,99,,,2025
+LBNN2,Thatch,1,,,2025
+LBNN2,Avena fatua,1,,,2025
+LBNN2,Melilotus indicus,2,,,2025
+LBNN2,Bromus hordeaceus,1,,,2025
+LBNN2,Bromus diandrus,1,,,2025
+LBNN3,Melilotus indicus,17,,,2025
+LBNN3,Festuca perennis,33,,,2025
+LBNN3,Stipa pulchra,1,,,2025
+LBNN3,Medicago polymorpha,52,,,2025
+LBNN3,Distichlis spicata,1,,,2025
+LBNN3,Bromus hordeaceus,1,,,2025
+LBNN3,Helminthotheca echioides,1,,,2025
+LBNN3,Thatch,2,,,2025
+LBNN3,Festuca myuros,1,,,2025
+LBNN4,Festuca perennis,60,,,2025
+LBNN4,Stipa pulchra,9,,,2025
+LBNN4,Helminthotheca echioides,8,,,2025
+LBNN4,Bromus hordeaceus,25,,,2025
+LBNN4,Melilotus indicus,3,,,2025
+LBNN4,Thatch,3,,,2025
+LBNN4,Medicago polymorpha,1,,,2025
+LBNN4,Brachypodium distachyon,2,,,2025
+LBNN5,Festuca perennis,60,,,2025
+LBNN5,Thatch,12,,,2025
+LBNN5,Stipa pulchra,13,,,2025
+LBNN5,Deinandra fasciculata,1,,,2025
+LBNN5,Medicago polymorpha,4,,,2025
+LBNN5,Brachypodium distachyon,2,,,2025
+LBNN5,Acmispon americanus,30,,,2025
+LBNN5,Bromus hordeaceus,1,,,2025
+LBNN6,Melilotus indicus,20,,,2025
+LBNN6,Medicago polymorpha,40,,,2025
+LBNN6,Festuca perennis,30,,,2025
+LBNN6,Bromus hordeaceus,4,,,2025
+LBNN6,Trifolium tomentosum,30,,,2025
+LBNN6,Polypogon monspeliensis,3,,,2025
+LBNN6,Thatch,2,,,2025
+LBNN7,Festuca perennis,65,,,2025
+LBNN7,Medicago polymorpha,8,,,2025
+LBNN7,Bromus hordeaceus,3,,,2025
+LBNN7,Polypogon monspeliensis,1,,,2025
+LBNN7,Melilotus indicus,9,,,2025
+LBNN7,Festuca myuros,3,,,2025
+LBNN7,Thatch,25,,,2025
+LBNN7,Stipa pulchra,1,,,2025
+LBNN7,Deinandra fasciculata,1,,,2025
+LBNN8,Festuca perennis,50,,,2025
+LBNN8,Bromus hordeaceus,1,,,2025
+LBNN8,Trifolium tomentosum,15,,,2025
+LBNN8,Medicago polymorpha,45,,,2025
+LBNN8,Stipa pulchra,1,,,2025
+LBNN8,Melilotus indicus,4,,,2025
+LBNN8,Polypogon monspeliensis,2,,,2025
+LBNN8,Centaurium tenuiflorum,1,,,2025
+LBNN8,Thatch,6,,,2025
+LBNN8,Avena fatua,1,,,2025
+LBNN8,Acmispon americanus,1,,,2025
+LBNN8,Vicia villosa,1,,,2025
+SAND1,Eschscholzia californica,1,,,2025
+SAND1,Polypogon monspeliensis,5,,,2025
+SAND1,Festuca myuros,15,,,2025
+SAND1,Thatch,40,,,2025
+SAND1,Melilotus indicus,50,,,2025
+SAND1,Bromus hordeaceus,1,,,2025
+SAND1,Medicago polymorpha,10,,,2025
+SAND1,Festuca perennis,1,,,2025
+SAND10,Festuca myuros,35,,,2025
+SAND10,Bareground,4,,,2025
+SAND10,Polypogon monspeliensis,7,,,2025
+SAND10,Thatch,5,,,2025
+SAND10,Eschscholzia californica,10,,,2025
+SAND10,Helminthotheca echioides,1,,,2025
+SAND10,Erigeron canadensis,2,,,2025
+SAND10,Medicago polymorpha,1,,,2025
+SAND10,Melilotus indicus,25,,,2025
+SAND10,Festuca perennis,2,,,2025
+SAND10,Bromus hordeaceus,15,,,2025
+SAND11,Festuca perennis,50,,,2025
+SAND11,Stipa pulchra,1,,,2025
+SAND11,Polypogon monspeliensis,3,,,2025
+SAND11,Festuca myuros,50,,,2025
+SAND11,Bareground,2,,,2025
+SAND11,Thatch,3,,,2025
+SAND11,Melilotus indicus,1,,,2025
+SAND12,Festuca perennis,70,,,2025
+SAND12,Festuca myuros,6,,,2025
+SAND12,Bromus hordeaceus,4,,,2025
+SAND12,Melilotus indicus,3,,,2025
+SAND12,Helminthotheca echioides,1,,,2025
+SAND12,Deinandra fasciculata,1,,,2025
+SAND12,Medicago polymorpha,18,,,2025
+SAND12,Stipa pulchra,4,,,2025
+SAND12,Thatch,2,,,2025
+SAND13,Stipa pulchra,25,,,2025
+SAND13,Melilotus indicus,25,,,2025
+SAND13,Medicago polymorpha,10,,,2025
+SAND13,Festuca perennis,1,,,2025
+SAND13,Erigeron canadensis,3,,,2025
+SAND13,Heterotheca grandiflora,1,,,2025
+SAND13,Festuca myuros,20,,,2025
+SAND13,Deinandra fasciculata,1,,,2025
+SAND13,Thatch,15,,,2025
+SAND13,Brachypodium distachyon,1,,,2025
+SAND14,Festuca myuros,60,,,2025
+SAND14,Medicago polymorpha,15,,,2025
+SAND14,Ambrosia psilostachya,4,,,2025
+SAND14,Madia sativa,1,,,2025
+SAND14,Bareground,10,,,2025
+SAND14,Bromus diandrus,1,,,2025
+SAND14,Thatch,15,,,2025
+SAND14,Bromus hordeaceus,1,,,2025
+SAND14,Erigeron canadensis,2,,,2025
+SAND14,Polypogon monspeliensis,1,,,2025
+SAND14,Melilotus indicus,10,,,2025
+SAND15,Melilotus indicus,14,,,2025
+SAND15,Bromus hordeaceus,33,,,2025
+SAND15,Polypogon monspeliensis,1,,,2025
+SAND15,Festuca perennis,1,,,2025
+SAND15,Erigeron canadensis,1,,,2025
+SAND15,Medicago polymorpha,14,,,2025
+SAND15,Thatch,5,,,2025
+SAND15,Stipa pulchra,2,,,2025
+SAND15,Bareground,4,,,2025
+SAND15,Festuca myuros,50,,,2025
+SAND2,Festuca myuros,5,,,2025
+SAND2,Deinandra fasciculata,1,,,2025
+SAND2,Festuca perennis,80,,,2025
+SAND2,Helminthotheca echioides,1,,,2025
+SAND2,Medicago polymorpha,10,,,2025
+SAND2,Bromus hordeaceus,1,,,2025
+SAND2,Melilotus indicus,15,,,2025
+SAND2,Stipa pulchra,1,,,2025
+SAND2,Avena fatua,1,,,2025
+SAND2,Thatch,2,,,2025
+SAND2,Plantago lanceolata,1,,,2025
+SAND3,Ambrosia psilostachya,2,,,2025
+SAND3,Festuca perennis,30,,,2025
+SAND3,Avena fatua,1,,,2025
+SAND3,Polypogon monspeliensis,11,,,2025
+SAND3,Melilotus indicus,5,,,2025
+SAND3,Medicago polymorpha,23,,,2025
+SAND3,Festuca myuros,27,,,2025
+SAND3,Deinandra fasciculata,1,,,2025
+SAND3,Stipa pulchra,1,,,2025
+SAND3,Bromus hordeaceus,5,,,2025
+SAND4,Festuca perennis,90,,,2025
+SAND4,Helminthotheca echioides,1,,,2025
+SAND4,Polypogon monspeliensis,2,,,2025
+SAND4,Bromus hordeaceus,1,,,2025
+SAND4,Melilotus indicus,3,,,2025
+SAND4,Stipa pulchra,2,,,2025
+SAND4,Medicago polymorpha,8,,,2025
+SAND4,Festuca myuros,5,,,2025
+SAND4,Avena fatua,2,,,2025
+SAND5,Eschscholzia californica,4,,,2025
+SAND5,Melilotus indicus,4,,,2025
+SAND5,Erigeron canadensis,2,,,2025
+SAND5,Bromus hordeaceus,2,,,2025
+SAND5,Bareground,23,,,2025
+SAND5,Polypogon monspeliensis,1,,,2025
+SAND5,Thatch,20,,,2025
+SAND5,Bromus diandrus,15,,,2025
+SAND5,Festuca perennis,32,,,2025
+SAND6,Bromus diandrus,20,,,2025
+SAND6,Melilotus indicus,5,,,2025
+SAND6,Bareground,35,,,2025
+SAND6,Avena fatua,1,,,2025
+SAND6,Thatch,30,,,2025
+SAND6,Festuca perennis,5,,,2025
+SAND6,Erigeron canadensis,3,,,2025
+SAND6,Festuca myuros,2,,,2025
+SAND7,Melilotus indicus,25,,,2025
+SAND7,Polypogon monspeliensis,1,,,2025
+SAND7,Festuca myuros,5,,,2025
+SAND7,Bromus diandrus,35,,,2025
+SAND7,Festuca perennis,15,,,2025
+SAND7,Helminthotheca echioides,1,,,2025
+SAND7,Thatch,20,,,2025
+SAND8,Madia sativa,5,,,2025
+SAND8,Avena fatua,1,,,2025
+SAND8,Erigeron canadensis,3,,,2025
+SAND8,Medicago polymorpha,1,,,2025
+SAND8,Bromus diandrus,75,,,2025
+SAND8,Festuca myuros,1,,,2025
+SAND8,Thatch,15,,,2025
+SAND8,Melilotus indicus,1,,,2025
+SAND8,Bromus hordeaceus,1,,,2025
+SAND8,Festuca perennis,3,,,2025
+SAND9,Erigeron canadensis,4,,,2025
+SAND9,Bromus hordeaceus,3,,,2025
+SAND9,Festuca perennis,40,,,2025
+SAND9,Festuca myuros,4,,,2025
+SAND9,Thatch,50,,,2025
+SAND9,Polypogon monspeliensis,1,,,2025
+SAND9,Vicia villosa,1,,,2025
+SAND9,Stipa pulchra,1,,,2025
+SAND9,Bromus tectorum,1,,,2025
+SAND9,Melilotus indicus,1,,,2025
+SAND9,Bromus diandrus,1,,,2025
+SAND9,Epilobium brachycarpum,1,,,2025
+SOIL1,Plantago coronopus,5,,,2025
+SOIL1,Spergularia sp.,7,,,2025
+SOIL1,Polypogon monspeliensis,72,,,2025
+SOIL1,Thatch,1,,,2025
+SOIL1,Deinandra fasciculata,2,,,2025
+SOIL1,Medicago polymorpha,1,,,2025
+SOIL1,Salicornia pacifica,1,,,2025
+SOIL1,Helminthotheca echioides,1,,,2025
+SOIL1,Bromus hordeaceus,5,,,2025
+SOIL1,Bareground,8,,,2025
+SOIL1,Festuca perennis,2,,,2025
+SOIL2,Bromus hordeaceus,5,,,2025
+SOIL2,Medicago polymorpha,50,,,2025
+SOIL2,Deinandra fasciculata,8,,,2025
+SOIL2,Helminthotheca echioides,1,,,2025
+SOIL2,Centaurium tenuiflorum,1,,,2025
+SOIL2,Polypogon monspeliensis,3,,,2025
+SOIL2,Festuca perennis,1,,,2025
+SOIL2,Stipa pulchra,1,,,2025
+SOIL2,Thatch,20,,,2025
+SOIL2,Bareground,6,,,2025
+SOIL2,Melilotus indicus,1,,,2025
+SOIL3,Melilotus indicus,16,,,2025
+SOIL3,Centaurium tenuiflorum,7,,,2025
+SOIL3,Ambrosia psilostachya,1,,,2025
+SOIL3,Polypogon monspeliensis,4,,,2025
+SOIL3,Medicago polymorpha,8,,,2025
+SOIL3,Avena fatua,1,,,2025
+SOIL3,Bromus hordeaceus,5,,,2025
+SOIL3,Stipa pulchra,1,,,2025
+SOIL3,Deinandra fasciculata,23,,,2025
+SOIL3,Festuca myuros,3,,,2025
+SOIL3,Helminthotheca echioides,1,,,2025
+SOIL3,Bareground,32,,,2025
+SOIL3,Festuca perennis,1,,,2025
+SOIL3,Thatch,5,,,2025
