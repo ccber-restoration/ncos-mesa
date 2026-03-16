@@ -6,7 +6,7 @@ library(janitor)
 library(cowplot)
 library(scales)
 
-# Lea's chosen color palette
+# Lee's chosen color palette
 
 mypaldark <- rep(cal_palette("kelp1",n=6, type = "discrete"), each=2)
 opacities <- rep(c("","66"), times=3)
