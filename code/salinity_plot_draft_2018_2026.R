@@ -1,4 +1,4 @@
-#use soils_2018 and soils_2026_winter as inputs
+#use soils_2018 and soils_2026_winter (from 2026-winter-soil-samples.R) as inputs
 
 #select subset of columns that match with 2026 data and do some renaming
 ec_2018 <- soils_2018 %>% 
@@ -11,16 +11,23 @@ ec_2026 <- soils_2026_winter %>%
   rename(ec_ds_m = ec_ds_per_m)
 
 ec_combined <- bind_rows(ec_2018, ec_2026) %>% 
-  mutate(year = as.factor(year))
+  mutate(year = as.factor(year)) %>% 
+  #fix a few non-standard depth bins
+  mutate(depth_midpoint = case_when(
+    depth_midpoint %in% c(-78.0, -77.5, -77.5) ~ -82.5,
+    .default = depth_midpoint
+  ))
 
 ec_combined_mean <- ec_combined %>%
   group_by(plot, year, depth_midpoint) %>% 
   summarize(mean_ec = mean(ec_ds_m, na.rm = TRUE),
             n = n()) %>% 
-  ungroup() 
+  ungroup()
+
+
   
 fig_ec_combined <- ggplot(data = ec_combined, aes(x = depth_midpoint, y = ec_ds_m, group = subplot)) +
-  geom_path(aes(color = year)) +
+  geom_path(aes(color = year), alpha = 0.5) +
   geom_path(data = ec_combined_mean, aes(x = depth_midpoint, y = mean_ec, group = year, color = year), linewidth = 2) +
   #geom_point() +
   #geom_path() +
@@ -37,6 +44,8 @@ fig_ec_combined <- ggplot(data = ec_combined, aes(x = depth_midpoint, y = ec_ds_
 fig_ec_combined 
 
 #ggplotly(fig_ec_combined)
+
+ggsave("figures/soil_cores/2018_2026_comparison_lines.png", fig_ec_combined)
 
 
 
