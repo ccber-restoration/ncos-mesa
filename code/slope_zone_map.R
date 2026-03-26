@@ -54,10 +54,13 @@ zone_performance <- slope_zones %>%
 
 #for colors see: https://blog.r-project.org/2019/04/01/hcl-based-color-palettes-in-grdevices/
 
+#currently set to show static labels for zones (transect layer turned off)
 mapview(zone_performance, zcol = "percent_of_desired", 
         col.regions = rev(hcl.colors(10, palette = "Emrld")),
         layer.name = "Percent of desired plant count",
-        map.types = "Esri.WorldImagery") +
-  mapview(transects_css) 
+        map.types = "Esri.WorldImagery") %>% 
+  addStaticLabels(label = zone_performance$Zone_Label) #+
+  #mapview(transects_css) 
+ 
 
-#TODO- make transect labels static
+
