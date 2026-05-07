@@ -88,9 +88,9 @@ plot_upper2
 # lower plots 
 plot_lower1 <- ggplot(lower_long, aes(x=timestamp, y=vwc, col=depth)) + 
   geom_line(aes(group = port)) +
-  ggtitle("Lower") +
+  ggtitle("Lower mesa slope") +
   scale_x_datetime(date_breaks = "1 month",
-                   date_labels = "%b %Y") + 
+                   date_labels = "%b '%y") + 
   LA_theme +
   vwc_scale +
   ylab("Volumetric water content") +
@@ -133,3 +133,9 @@ fig_vwc_2_panel
 
 
 ggsave("figures/vwc/Mesa_Slope_VWC_2026-03-02.pdf")
+
+# single panel version for SERCAL
+
+ggsave("figures/vwc/SERCAL/VWC_lower.pdf", plot_lower1,
+       width = 11,
+       height = 4.5)
