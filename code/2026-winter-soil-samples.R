@@ -298,7 +298,7 @@ fig_2026_ec <- ggplot(data = soils_2026_winter, aes(x = depth_midpoint, y = ec_d
   facet_wrap(facets = vars(plot), strip.position = "bottom") +
   scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
   scale_y_continuous(limits = c(0,NA), position = "right") +
-  labs(y = "Estimated EC (dS/m)", x = "Depth (cm)", title = "Jan-Mar 2026") +
+  labs(y = "EC (dS/m)", x = "Depth (cm)", title = "Jan-Mar 2026") +
   scale_color_ptol()
 
 fig_2026_ec
