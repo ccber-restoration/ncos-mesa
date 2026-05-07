@@ -114,7 +114,7 @@ fig_2026_spring_ec <- ggplot(data = soils_2026_spring, aes(x = depth_midpoint, y
   theme_cowplot() +
   scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
   scale_y_continuous(limits = c(0,NA), position = "right") +
-  labs(y = "Estimated EC (dS/m)", x = "Depth (cm)", title = "Mesa Slope cores, April 2026") +
+  labs(y = "EC (dS/m)", x = "Depth (cm)", title = "Mesa Slope cores, April 2026") +
   scale_color_ptol()
 
 fig_2026_spring_ec
