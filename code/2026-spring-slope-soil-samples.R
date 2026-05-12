@@ -9,12 +9,12 @@ library(janitor)
 library(cowplot)
 library(ggthemes) # to use Paul Tol color palettes
 
-#packages specifically for soil science
+# packages specifically for soil science
 library(aqp) # algorithms for quantitative pedology
-#library(soiltexture)
+# library(soiltexture)
 
-#load custom function for estimating salinity in more standard units
-#estimate dS per m from 5:1 method ()
+# load custom function for estimating salinity in more standard units
+# estimate dS per m from 5:1 method ()
 
 source("code/mS_per_cm_to_dS_per_m.R")
 
@@ -108,8 +108,6 @@ fig_2026_spring_ec <- ggplot(data = soils_2026_spring, aes(x = depth_midpoint, y
   geom_point() +
   geom_path() +
   geom_path(data = means_2026_spring, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 2) +
-  xlab("Sample depth (cm)") +
-  ylab("EC") +
   coord_flip() +
   theme_cowplot() +
   scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
@@ -131,9 +129,8 @@ ggsave(filename = "figures/soil_cores/Spring_2026_Mesa_Slope_EC.pdf",
 fig_2026_spring_moisture <- ggplot(data = soils_2026_spring, aes(x = depth_midpoint, y = percent_soil_moisture, color = zone)) +
   geom_point() +
   geom_path() +
+  # plot thick black line for mean values
   geom_path(data = means_2026_spring, aes(x = depth_midpoint, y = mean_moisture), color = "black", linewidth = 2) +
-  xlab("Sample depth (cm)") +
-  ylab("EC") +
   coord_flip() +
   theme_cowplot() +
   scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
