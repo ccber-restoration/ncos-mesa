@@ -1,0 +1,63 @@
+---
+title: "Survival Leaves 05-27-2026 and 05-28-2026"
+format: pdf
+---
+
+# Data from 05-27-2026 and 05-28-2026
+
+```{r, fig.width=7, fig.height=6, fig.align='center'}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+library(dplyr)
+library(janitor)
+leaf_count <- read.csv("Stipa_salinity_experiment_data - survival_leaves_2026_05_27.csv") |> 
+  clean_names() |> 
+  select(
+    water, 
+    live_leaves,
+    green_leaves, 
+    salinity) |> 
+  # Remove rows with missing values (NAs) to keep the graph clean
+  drop_na(live_leaves, green_leaves) |> 
+  # calculating proportion of live leaves 
+  mutate(
+    proportion_live = live_leaves / (live_leaves + green_leaves),
+    salinity = as.factor(salinity)
+  )
+
+ggplot(leaf_count,
+       mapping = aes(x = salinity,
+                     y = proportion_live,
+                     fill = water)) +
+  # first layer: geom_boxplot
+  geom_boxplot(alpha = 0.5,
+               position = position_dodge(0.8)) +
+  # second layer: geom_jitter
+  geom_jitter(
+    aes(color = water), # Color points by watering treatment too
+    position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8),
+    alpha = 0.7,
+    size = 2,
+    shape = 21
+  ) +
+  labs(
+    title = "Proportion of Live Leaves by Salinity and Water Treatment",
+    x = "Salinity Treatment (dS/m)",
+    y = "Proportion of Live Leaves",
+    fill = "Watering Treatment"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  # Custom colors 
+  scale_fill_manual(
+    values = c("wet" = "skyblue3", "dry" = "darkkhaki")
+  ) +
+  scale_color_manual(
+    values = c("wet" = "skyblue3", "dry" = "darkkhaki")
+  )
+```
+
+Dry treatment shown in yellow and wet in blue. 
+
