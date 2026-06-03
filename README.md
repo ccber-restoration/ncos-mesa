@@ -34,6 +34,12 @@ Note that this repository generally uses .csv copies of data files, but the orig
 - Pre-dawn and midday water potentials for BAPI & ARCA were collected by Lee et al. on 2020-02-20.
 - Midday water potentials were collected for BAPI & ARCA by Emilee Doering on 2025-11-07 and repeated on 2025-12-03.
 
+## Stipa salinity experiment
+
+- Stipa greenhouse salinity experiment data from Spring 2026
+-  Google Shared Drive folder is here: https://drive.google.com/drive/folders/1FxABOscDW1BEKUGMBRmyWxCdnjvKBSFK?usp=sharing
+
+  
 # Code
 
 Note that scripts that were not originally written within this repository are stored in code/as_received folder(s).
