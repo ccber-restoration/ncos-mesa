@@ -1,0 +1,81 @@
+---
+title: "Combining Survival Leaves Data"
+author: "Jared Umphress"
+subtitle: "June 22, 2026"
+format: pdf
+
+execute:
+  warning: false
+  message: false
+---
+
+In this qmd code document, I am combining the survival_leaves data across different dates. I will do so adding the data frames as additional rows, not making each date a column.\newline
+
+
+Questions Jared has for Francis:\newline
+
+* When you strikethrough boxed values in google sheets, does it just show up as NA when it is uploaded as a csv?
+* What should I do when the data for the 80 individuals is observed across multiple days?
+* Why is the 2026_06_10 data have 2026_06_03 in the date column? Was the wrong date inputted in the google sheets?
+
+
+### Loading in packages 
+```{r}
+
+library(tidyverse)
+library(here)
+
+```
+
+I created an additional folder within the ncos-mesa/data/stipa_salinity_expirement called cleaned_combined_data_2026_06_22 in order upload the most recent csv's for the survival_leaves data. The data within this folder has been cleaned within google sheets, which was mainly making sure that every row had the correct date instead of leaving them empty which appears as NA in a csv. 
+
+### Loading in data
+```{r}
+
+# bringing in survival_leaves_2026_05_06.csv using the read_csv function 
+#   and storing as object called data_2026_05_06
+data_2026_05_06 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_05_06.csv"))
+
+
+# doing the same for the date 2026_05_20
+data_2026_05_20 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_05_20.csv"))
+
+
+data_2026_05_27 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_05_27.csv"))
+
+
+data_2026_06_03 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_06_03.csv"))
+
+# holding off on adding 2026_06_10 data as the date listed was 06_03
+#data_2026_06_10 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_06_10.csv"))
+
+data_2026_06_17 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_06_17.csv"))
+
+
+```
+
+### Show a slice of 10 rows of one data_2026_05_06 
+
+This will give you a sense of how the data is structured
+```{r}
+
+# displaying 10 random rows from the data_2026_05-06 data frame
+slice_sample(data_2026_05_06, n=10)
+
+```
+
+
+### Adding the different dates into one dataframe
+
+All the data across the different dates for the stipa_survival have the same columns. I am going to combine them by adding the rows of observations length wise. I am not going to add the data width wise. Adding the data width wise would mean creating a row for each date.
+
+```{r}
+
+```
+
+
+
+
+
+
+
