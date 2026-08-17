@@ -34,22 +34,22 @@ I created an additional folder within the ncos-mesa/data/stipa_salinity_expireme
 
 # bringing in survival_leaves_2026_05_06.csv using the read_csv function 
 #   and storing as object called data_2026_05_06
-data_2026_05_06 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_05_06.csv"))
+data_2026_05_06 <- read_csv(here("data/stipa_salinity_experiment/combined_data_2026_summer/survival_leaves_2026_05_06.csv"))
 
 
 # doing the same for the date 2026_05_20
-data_2026_05_20 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_05_20.csv"))
+data_2026_05_20 <- read_csv(here("data/stipa_salinity_experiment/combined_data_2026_summer/survival_leaves_2026_05_20.csv"))
 
 
-data_2026_05_27 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_05_27.csv"))
+data_2026_05_27 <- read_csv(here("data/stipa_salinity_experiment/combined_data_2026_summer/survival_leaves_2026_05_27.csv"))
 
 
-data_2026_06_03 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_06_03.csv"))
+data_2026_06_03 <- read_csv(here("data/stipa_salinity_experiment/combined_data_2026_summer/survival_leaves_2026_06_03.csv"))
 
 # holding off on adding 2026_06_10 data as the date listed was 06_03
-#data_2026_06_10 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_06_10.csv"))
+#data_2026_06_10 <- read_csv(here("data/stipa_salinity_experiment/combined_data_2026_summer/survival_leaves_2026_06_10.csv"))
 
-data_2026_06_17 <- read_csv(here("data/stipa_salinity_experiment/cleaned_combined_data_2026_06_22/survival_leaves_2026_06_17.csv"))
+data_2026_06_17 <- read_csv(here("data/stipa_salinity_experiment/combined_data_2026_summer/survival_leaves_2026_06_17.csv"))
 
 
 ```
@@ -67,9 +67,12 @@ slice_sample(data_2026_05_06, n=10)
 
 ### Adding the different dates into one dataframe
 
-All the data across the different dates for the stipa_survival have the same columns. I am going to combine them by adding the rows of observations length wise. I am not going to add the data width wise. Adding the data width wise would mean creating a row for each date.
+All the data across the different dates for the stipa_survival have the same columns. I am going to combine them by adding the rows of observations length wise (vertically). I am not going to add the data width wise (horizontally). Adding the data width wise would mean creating a row for each date.
 
 ```{r}
+
+combined_stipa <- bind_rows(data_2026_05_06, data_2026_05_20, data_2026_05_27, data_2026_06_03, data_2026_06_17)
+
 
 ```
 
