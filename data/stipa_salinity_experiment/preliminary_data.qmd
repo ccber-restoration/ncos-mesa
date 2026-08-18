@@ -1,0 +1,102 @@
+---
+title: "Preliminary Data"
+format: pdf
+---
+
+# Leaf Count Data 
+
+Preliminary data counts as of 05/14/2026
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+library(dplyr)
+library(janitor)
+leaf_count <- read.csv("Stipa_salinity_experiment_data - survival_leaves_2026_05_06.csv") |> 
+  clean_names() |> 
+  select(
+    water, 
+    live_leaves,
+    green_leaves, 
+    salinity) |> 
+  pivot_longer(
+    cols = c(live_leaves, green_leaves), 
+    names_to = "leaf_type", 
+    values_to = "count"
+  ) |> 
+  # 2. Convert salinity to a factor so it's treated as categories on the X-axis
+  mutate(salinity = as.factor(salinity)) |> 
+  # 3. Remove rows with missing values (NAs) to keep the graph clean
+  drop_na(count) 
+
+ggplot(leaf_count,
+       mapping = aes(x = salinity,
+                     y = count,
+                     fill = leaf_type)) +
+  geom_boxplot(alpha = 0.7) +
+  facet_wrap(~water) +
+  labs(
+    title = "Leaf Counts by Salinity and Water Treatment",
+    x = "Salinity Treatment (dS/m)",
+    y = "Number of Leaves",
+    fill = "Leaf Condition"
+  ) +
+  theme_minimal() +
+  # Custom colors for the leaves
+  scale_fill_manual(
+    values = c("green_leaves" = "forestgreen", "live_leaves" = "darkkhaki"),
+    labels = c("Green Leaves", "Total Live Leaves")
+  )
+```
+
+# Fluorescence data
+Preliminary data counts as of 05/14/2026
+
+```{r}
+#| echo: false
+metadata <- read.csv("Stipa_salinity_experiment_data - survival_leaves_2026_05_06.csv") |> 
+  clean_names() |> 
+  select(new_id, salinity, water) # We only need these columns to "label" the fluorescence data
+
+# 2. Load the fluorescence data
+fluor_data <- read.csv("Stipa_salinity_experiment_data - fluorescence_2026_05_06.csv") |> 
+  clean_names()
+
+# 3. Join the datasets and clean up
+# We use inner_join to match the Fm_values to their respective salinity/water treatment via 'new_id'
+combined_fluor <- fluor_data |> 
+  inner_join(metadata, by = "new_id") |> 
+  drop_na(fm_value) |> 
+  mutate(salinity = as.factor(salinity)) 
+
+ggplot(combined_fluor, aes(x = salinity, y = fm_value, fill = water)) +
+  # Using a boxplot to show the distribution of fluorescence across treatments
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  # Adding jittered points to show individual measurements (some plants have multiple)
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.1), 
+              alpha = 0.5, size = 1.5) +
+  facet_wrap(~water) +
+  labs(
+    title = "Chlorophyll Fluorescence (Fm) by Salinity and Water Treatment",
+    x = "Salinity Treatment (dS/m)",
+    y = "Fm Value",
+    fill = "Water Status"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("wet" = "steelblue", "dry" = "sienna3")) +
+  theme(legend.position = "none") # Hidden because facet labels already show Wet/Dry
+
+
+
+
+
+
+```
+
+
+
+
+
+
+

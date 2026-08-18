@@ -1,0 +1,7 @@
+Created by Jared Umphress
+
+binomial logistic regression for survival across diff salinities
+visually compare total biomass, root to shoot ratio using boxplots for the four salinity treatments
+
+statistically compare total biomass, root to shoot ratio using anova or non-parametric version
+

@@ -1,0 +1,147 @@
+---
+title: "Summer 2026 Grassland Soil Core Figures"
+author: "Jared Umphress"
+subtitle: "Created: August 16, 2026
+           Last Updated: "
+format: 
+  pdf:
+    colorlinks: true
+toc: true
+
+execute:
+  warning: false
+  message: false
+---
+
+# Part 1: Set up tasks
+
+Load in libraries
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(here)
+
+#plotting
+library(cowplot)
+library(ggthemes) # to use Paul Tol color palettes
+
+# packages specifically for soil science
+library(aqp) # algorithms for quantitative pedology
+# library(soiltexture)
+```
+
+Load in data
+```{r}
+
+soil_data <- read.csv(here("data/soil_samples/2026_summer_grassland_soil_cores.csv"))
+
+```
+
+# Part 2: Convert EC measurements to dS/m 
+
+This function also accounts for dilution
+
+```{r}
+
+source(here("code/mS_per_cm_to_dS_per_m.R"))
+
+#clean data, get depth midpoints, and estimate EC in dS/m
+soil_data <- soil_data %>% 
+  clean_names() %>% 
+  mutate(
+         depth_midpoint = -(depth_top + depth_bottom)/2,
+         ec_ds_per_m = uS_per_cm_to_dS_per_m(ec_u_s_cm),
+         ec_converted = (ec_u_s_cm/1000)*5,
+         year = year(sample_date)
+  )
+
+```
+
+Test uS/cm to dS/cm conversion
+```{r}
+
+# high value of 2440
+uS_per_cm_to_dS_per_m(2440)
+# 16.451 dS/cm
+
+# low value of 235 uS/cm
+uS_per_cm_to_dS_per_m(235)
+# 3.005 dS/cm
+
+```
+
+## 2.1: Get mean EC and soil moisture values for depth midpoints 
+
+```{r}
+
+#calculate mean values for both plots combined
+means_2026_summer <- soil_data %>% 
+  group_by(depth_midpoint) %>% 
+  summarize(mean_ec = mean(ec_ds_per_m, na.rm = TRUE),
+            mean_moisture = mean(percent_soil_moisture),
+            #mean_sand = mean(sand),
+            #mean_clay = mean(clay),
+            n = n()) %>% 
+  ungroup()
+```
+
+
+# Part 3: Plot EC and soil moisture based on transect
+
+EC figures
+```{r}
+
+fig_2026_summer_ec <- ggplot(data = soil_data, aes(x = depth_midpoint, y = ec_ds_per_m, color = transect)) +
+  geom_point() +
+  geom_path() +
+  geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 2) +
+  coord_flip() +
+  theme_cowplot() +
+  scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
+  scale_y_continuous(limits = c(0,NA), position = "right") +
+  labs(y = "EC (dS/m)", x = "Depth (cm)", title = "Mesa Grassland Cores, July 2026") +
+  scale_color_ptol()
+
+fig_2026_summer_ec
+
+#save to file
+ggsave(filename = here("figures/soil_cores/Summer_2026_Mesa_Grassland_EC.pdf"),
+       fig_2026_summer_ec,
+       width = 6,
+       height = 4,
+       units = "in",
+       bg = "white")
+
+
+```
+
+Soil Moisture figures
+```{r}
+
+#  moisture plot ---- 
+fig_2026_summer_moisture <- ggplot(data = soil_data, aes(x = depth_midpoint, y = percent_soil_moisture, color = transect)) +
+  geom_point() +
+  geom_path() +
+  # plot thick black line for mean values
+  geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_moisture), color = "black", linewidth = 2) +
+  coord_flip() +
+  theme_cowplot() +
+  scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
+  scale_y_continuous(limits = c(0,NA), position = "right") +
+  labs(y = "% moisture", x = "Depth (cm)", title = "Mesa Grassland Cores, July 2026") +
+  scale_color_ptol()
+
+fig_2026_summer_moisture
+
+ggsave(filename = here("figures/soil_cores/Summer_2026_Mesa_Grassland_moisture.pdf"),
+       fig_2026_summer_moisture,
+       width = 6,
+       height = 4,
+       units = "in",
+       bg = "white")
+
+
+
+```
+

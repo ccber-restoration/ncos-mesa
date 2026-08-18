@@ -14,7 +14,7 @@ Note that this repository generally uses .csv copies of data files, but the orig
 
 ## Soil
 
--  Volumetric water content is continuously collected by two sensor arrays starting 2025-01-29 (upper logger is ~ 34.419879, -119.879036)
+-  Volumetric water content is continuously collected by two sensor arrays starting 2025-01-29 (upper logger is at ~ 34.419879, -119.879036; lower logger is at ~ 34.42009, -119.87898)
 
 -  Gravimetric soil data were collected by Jacob Pike, Kellen Pierce, Zephyr Moss, and Sydney Beckett. They used a shared Google Drive folder: "CCBER Soils Team Data". https://drive.google.com/drive/u/2/folders/1KuaGsWqHGZcds0SsivSqpVOM9jRhxu1n
     -  Soil samples were collected on 2025-02-25, 2025-04-07, 2025-04-23,

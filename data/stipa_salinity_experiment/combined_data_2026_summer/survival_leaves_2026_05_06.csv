@@ -1,0 +1,81 @@
+Date,new_id,salinity,water,surv,live_leaves,green_leaves,notes
+2026-05-06,1,0.8,wet,1,12,12,
+2026-05-06,2,0.8,wet,1,16,11,
+2026-05-06,3,0.8,wet,1,23,21,Just tip is yellow
+2026-05-06,4,0.8,wet,1,14,12,half yellow + purple
+2026-05-06,5,0.8,wet,1,20,20,
+2026-05-06,6,0.8,wet,1,10,9,half yellow
+2026-05-06,7,0.8,wet,1,18,17,1 yellowing
+2026-05-06,8,0.8,wet,1,26,26,
+2026-05-06,9,0.8,wet,,,,
+2026-05-06,10,0.8,wet,1,7,5,2 browning
+2026-05-06,11,0.8,dry,1,22,19,3 yellowing
+2026-05-06,12,0.8,dry,1,25,20,5 discolored
+2026-05-06,13,0.8,dry,1,28,24,brown/yellow
+2026-05-06,14,0.8,dry,1,27,25,2 discolored
+2026-05-06,15,0.8,dry,1,18,15,3 discolored
+2026-05-06,16,0.8,dry,1,22,18,lots of thatch
+2026-05-06,17,0.8,dry,1,13,16,yellowing
+2026-05-06,18,0.8,dry,1,23,21,yellowing
+2026-05-06,19,0.8,dry,1,19,16,yellowing
+2026-05-06,20,0.8,dry,,,,
+2026-05-06,21,4,wet,1,14,8,"lots of thatch, aphids"
+2026-05-06,22,4,wet,1,6,2,
+2026-05-06,23,4,wet,,,,
+2026-05-06,24,4,wet,1,10,6,
+2026-05-06,25,4,wet,1,18,13,
+2026-05-06,26,4,wet,1,10,6,
+2026-05-06,27,4,wet,1,29,26,
+2026-05-06,28,4,wet,1,16,14,lots of thatch 
+2026-05-06,29,4,wet,1,16,11,some purple/half discolored
+2026-05-06,30,4,wet,1,45,39,coloring at tips 
+2026-05-06,31,4,dry,1,19,13,flowering 
+2026-05-06,32,4,dry,1,12,8,starting to discolor 
+2026-05-06,33,4,dry,1,16,9,flowering and starting to discolor 
+2026-05-06,34,4,dry,1,15,10,purple and yellowing at tips 
+2026-05-06,35,4,dry,1,34,30,not a lot of thatch 
+2026-05-06,36,4,dry,1,16,10,tips are yellow
+2026-05-06,37,4,dry,1,8,5,3 discolored
+2026-05-06,38,4,dry,1,17,8,
+2026-05-06,39,4,dry,1,22,13,tips are yellow + purple
+2026-05-06,40,4,dry,1,16,12,
+2026-05-06,41,7.5,wet,1,24,17,yellowing 
+2026-05-06,42,7.5,wet,1,26,19,yellowing at tips 
+2026-05-06,43,7.5,wet,1,24,21,"starting to yellow, good amount of thatch "
+2026-05-06,44,7.5,wet,1,36,25,disoloring at tips
+2026-05-06,45,7.5,wet,,,,
+2026-05-06,46,7.5,wet,1,20,13,purpling 
+2026-05-06,47,7.5,wet,1,27,16,purpling and yellow at tips 
+2026-05-06,48,7.5,wet,1,21,14,purple/yellow 
+2026-05-06,49,7.5,wet,1,16,10,purple/yellow and about half thatch 
+2026-05-06,50,7.5,wet,1,15,11,purpling 
+2026-05-06,51,7.5,dry,1,11,9,purpling/yellow at tips 
+2026-05-06,52,7.5,dry,1,18,12,yellowing at tips 
+2026-05-06,53,7.5,dry,1,29,22,brown/yellow tips 
+2026-05-06,54,7.5,dry,1,20,14,more sparse 
+2026-05-06,55,7.5,dry,1,22,17,slight brown / yellow tips 
+2026-05-06,56,7.5,dry,1,27,22,"purpling, thick hatch "
+2026-05-06,57,7.5,dry,1,10,4,"lots of smaller leaves, discoloring at tips "
+2026-05-06,58,7.5,dry,1,22,18,
+2026-05-06,59,7.5,dry,1,26,15,
+2026-05-06,60,7.5,dry,1,23,14,
+2026-05-06,61,11,wet,1,17,13,tips & some spots in the middle are brown 
+2026-05-06,62,11,wet,1,25,21,yellow from tips and edges of leaves
+2026-05-06,63,11,wet,1,11,9,tips yellowed
+2026-05-06,64,11,wet,1,26,25,brown spots & on edges of leaf
+2026-05-06,65,11,wet,1,8,6,
+2026-05-06,66,11,wet,1,13,8,lots of thatch
+2026-05-06,67,11,wet,1,29,23,"very sparse, more thatch than alive "
+2026-05-06,68,11,wet,1,26,15,yellowing 
+2026-05-06,69,11,wet,1,10,6,"dry tips, good amount of thatch "
+2026-05-06,70,11,wet,1,30,21,sprase with thatch 
+2026-05-06,71,11,dry,1,22,17,"some yellow, little thatch "
+2026-05-06,72,11,dry,1,21,13,"yellowing, good amount of thatch "
+2026-05-06,73,11,dry,1,9,1,"sparse, lots of yellowing "
+2026-05-06,74,11,dry,,,,harvested on 2026-04-23
+2026-05-06,75,11,dry,1,21,16,"flowering, yellowing "
+2026-05-06,76,11,dry,1,22,17,"browning at tips, some yellowing "
+2026-05-06,77,11,dry,1,24,16,"flowering, tan at tips, some yellowing "
+2026-05-06,78,11,dry,1,23,13,sparse but little to no thatch 
+2026-05-06,79,11,dry,1,11,7,"spare, some yellow/purple "
+2026-05-06,80,11,dry,1,13,10,"sparse, about half thatch, coloring at tips "
