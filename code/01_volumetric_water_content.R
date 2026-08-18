@@ -37,7 +37,7 @@ upper_long <- upper %>%
 #note, seems data logger reverted to default time sometime after 2025-10-29 02:00:00
 #time was reset on "2025-11-07 14:00:00"?
 
-lower <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 02Mar26-1058.xlsx", 
+lower <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 02Jun26-1329.xlsx", 
                            sheet = "Processed Data Config 1",
                            col_names = c("Timestamp",	"Port1_VWC",	"Port2_VWC",	"Port3_VWC",	"Port4_VWC",	"Port5_VWC",	"Port6_VWC",	"Bat_percent",	"mV.Battery.Voltage"),
                            col_types = c("date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), 
@@ -136,6 +136,11 @@ ggsave("figures/vwc/Mesa_Slope_VWC_2026-03-02.pdf")
 
 # single panel version for SERCAL
 
-ggsave("figures/vwc/SERCAL/VWC_lower.pdf", plot_lower1,
+# ggsave("figures/vwc/SERCAL/VWC_lower.pdf", plot_lower1,
+#        width = 11,
+#        height = 4.5)
+
+
+ggsave("figures/vwc/VWC_lower_2026-06-02.pdf", plot_lower1,
        width = 11,
        height = 4.5)
