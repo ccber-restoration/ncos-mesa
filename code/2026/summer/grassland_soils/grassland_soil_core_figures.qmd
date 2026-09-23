@@ -2,7 +2,7 @@
 title: "Summer 2026 Grassland Soil Core Figures"
 author: "Jared Umphress"
 subtitle: "Created: August 16, 2026
-           Last Updated: "
+           Last Updated: September 17, 2026 "
 format: 
   pdf:
     colorlinks: true
@@ -29,6 +29,11 @@ library(ggthemes) # to use Paul Tol color palettes
 # packages specifically for soil science
 library(aqp) # algorithms for quantitative pedology
 # library(soiltexture)
+
+library(MuMIn) # model selection
+library(ggeffects) # generating model predictions
+
+library(ggplot2) # for ggplot
 ```
 
 Load in data
@@ -53,8 +58,18 @@ soil_data <- soil_data %>%
          depth_midpoint = -(depth_top + depth_bottom)/2,
          ec_ds_per_m = uS_per_cm_to_dS_per_m(ec_u_s_cm),
          ec_converted = (ec_u_s_cm/1000)*5,
+         year = year(sample_date),
+          # use lapply to apply the conversion function to the vector
+         ssc = lapply(texture_code, texcl_to_ssc),
+         #subset ssc to the corresponding columns
+         sand = sapply(ssc, `[[`, "sand"),
+         silt = sapply(ssc, `[[`, "silt"),
+         clay = sapply(ssc, `[[`, "clay"),
          year = year(sample_date)
-  )
+  ) %>%
+  select(-ssc) %>%  # Remove temporary column
+  #move quantitative columns next to texture
+  relocate(sand:clay, .after = texture_code)
 
 ```
 
@@ -71,7 +86,7 @@ uS_per_cm_to_dS_per_m(235)
 
 ```
 
-## 2.1: Get mean EC and soil moisture values for depth midpoints 
+## 2.2: Get mean EC, soil moisture, and sand/clay content values for depth midpoints 
 
 ```{r}
 
@@ -80,16 +95,17 @@ means_2026_summer <- soil_data %>%
   group_by(depth_midpoint) %>% 
   summarize(mean_ec = mean(ec_ds_per_m, na.rm = TRUE),
             mean_moisture = mean(percent_soil_moisture),
-            #mean_sand = mean(sand),
-            #mean_clay = mean(clay),
+            mean_sand = mean(sand),
+            mean_clay = mean(clay),
             n = n()) %>% 
   ungroup()
+
 ```
 
 
-# Part 3: Plot EC and soil moisture based on transect
+# Part 3: Plot EC, soil moisture, clay/sand percentage by depth based on transect 
 
-EC figures
+## 3.1 EC figures
 ```{r}
 
 fig_2026_summer_ec <- ggplot(data = soil_data, aes(x = depth_midpoint, y = ec_ds_per_m, color = transect)) +
@@ -98,15 +114,15 @@ fig_2026_summer_ec <- ggplot(data = soil_data, aes(x = depth_midpoint, y = ec_ds
   geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 2) +
   coord_flip() +
   theme_cowplot() +
-  scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
+  scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
   scale_y_continuous(limits = c(0,NA), position = "right") +
-  labs(y = "EC (dS/m)", x = "Depth (cm)", title = "Mesa Grassland Cores, July 2026") +
+  labs(y = "EC (dS/m)", x = "Depth (cm)", title = "Mesa Grassland Cores, Summer 2026") +
   scale_color_ptol()
 
 fig_2026_summer_ec
 
 #save to file
-ggsave(filename = here("figures/soil_cores/Summer_2026_Mesa_Grassland_EC.pdf"),
+ggsave(filename = here("figures/soil_cores/2026/summer/Summer_2026_Mesa_Grassland_EC.pdf"),
        fig_2026_summer_ec,
        width = 6,
        height = 4,
@@ -116,7 +132,7 @@ ggsave(filename = here("figures/soil_cores/Summer_2026_Mesa_Grassland_EC.pdf"),
 
 ```
 
-Soil Moisture figures
+## 3.2 Soil Moisture figures
 ```{r}
 
 #  moisture plot ---- 
@@ -127,21 +143,428 @@ fig_2026_summer_moisture <- ggplot(data = soil_data, aes(x = depth_midpoint, y =
   geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_moisture), color = "black", linewidth = 2) +
   coord_flip() +
   theme_cowplot() +
-  scale_x_continuous(limits = c(-75,0), breaks = seq(-75, 0, by =15)) +
+  scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
   scale_y_continuous(limits = c(0,NA), position = "right") +
-  labs(y = "% moisture", x = "Depth (cm)", title = "Mesa Grassland Cores, July 2026") +
+  labs(y = "% moisture", x = "Depth (cm)", title = "Mesa Grassland Cores, Summer 2026") +
   scale_color_ptol()
 
 fig_2026_summer_moisture
 
-ggsave(filename = here("figures/soil_cores/Summer_2026_Mesa_Grassland_moisture.pdf"),
+ggsave(filename = here("figures/soil_cores/2026/summer/Summer_2026_Mesa_Grassland_moisture.pdf"),
        fig_2026_summer_moisture,
        width = 6,
        height = 4,
        units = "in",
        bg = "white")
 
+```
+
+## 3.3: Plot Average Sand% and Average Clay % by Depth
+```{r}
+
+# Texture  ----
+
+##   Sand  ----
+fig_2026_summer_sand <- ggplot(data = soil_data, aes(x = depth_midpoint, y = sand)) +
+  geom_point(aes(color = transect, group = transect)) +
+  #geom_jitter() +
+  geom_path(aes(color = transect, group = transect)) +
+  geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_sand), color = "black", linewidth = 2) +
+  theme_cowplot() +
+  coord_flip() +
+  #ylab("Sample depth (cm)") +
+  #xlab("% Sand (estimated)") +
+  scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
+  scale_y_continuous(limits = c(0,100), position = "right") +
+  scale_color_ptol() +
+  labs(title = "Mesa Grasslands, Summer 2026", y = "Sand (%)", x = "Depth (cm)")
+
+fig_2026_summer_sand
+
+## Clay  ----
+fig_2026_summer_clay <- ggplot(data = soil_data, aes(x = depth_midpoint, y = clay)) +
+  geom_point(aes(color = transect, group = transect)) +
+  #geom_jitter() +
+  geom_path(aes(color = transect, group = transect)) +
+  geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_clay), color = "black", linewidth = 2) +
+  theme_cowplot() +
+  coord_flip() +
+  #ylab("Sample depth (cm)") +
+  #xlab("% Sand (estimated)") +
+  scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
+  scale_y_continuous(limits = c(0,100), position = "right") +
+  scale_color_ptol() +
+  labs(title = "Mesa Grasslands, Summer 2026", y = "Clay (%)", x = "Depth (cm)")
+
+fig_2026_summer_clay
+
+## combined plot ----
+fig_slope_texture <- plot_grid(fig_2026_summer_sand, fig_2026_summer_clay,
+                            nrow = 1)
+fig_slope_texture
+
+#save to file
+ggsave(filename = "figures/soil_cores/2026/summer/Summer_2026_Mesa_Grassland_texture.pdf", 
+       plot = fig_slope_texture,
+       width = 8,
+       height = 5,
+       units = "in")
+
+```
+
+Notes:
+* GL10 has pretty homogenous soil texture of sandy clay. Its soil moisture is relatively homogenous throughout the various depths. EC does not skew until last depth 
+
+## 3.4 Code to look at one transect at a time
+```{r}
+
+# using the soil_data, create smaller data frame called one_core_data 
+one_core_data <- soil_data %>%
+  # filter to include only the transects of interest
+  filter(transect == "GL-2")
 
 
+one_core_2026_summer <- ggplot(data = one_core_data, 
+                                   aes(x = depth_midpoint, 
+                                       y = percent_soil_moisture, # ec_ds_per_m or percent_soil_moisture
+                                       color = transect)) +
+  geom_point() +
+  geom_path() +
+  geom_path(data = means_2026_summer, aes(x = depth_midpoint, y = mean_ec), color = "black", linewidth = 1.5) +
+  coord_flip() +
+  theme_cowplot() +
+  scale_x_continuous(limits = c(-90,0), breaks = seq(-90, 0, by =15)) +
+  scale_y_continuous(limits = c(0,NA), position = "right") +
+  labs(y = "EC (dS/m)", x = "Depth (cm)", title = "One Mesa Grassland Core, Summer 2026") +
+  scale_color_ptol()
+
+one_core_2026_summer
+
+```
+
+
+# Part 5: Get mean EC, soil moisture, and sand/clay content values for each transect
+```{r}
+
+soil_data_summary <- soil_data %>%
+  group_by(transect) %>%
+  summarise(
+    mean_ec = mean(ec_u_s_cm),
+    mean_soil_moisture = mean(percent_soil_moisture),
+    mean_clay_content = mean(clay),
+    mean_sand_content = mean(sand)
+  )
+
+soil_data_summary
+
+```
+
+## 5.2: Create bar charts displaying means
+```{r}
+
+### for soil electrical conductivity (salinity) ###
+mean_ec_graph <- ggplot(
+  data = soil_data_summary,
+  aes(
+      x = transect, 
+      y = mean_ec,
+      fill = transect
+)) +
+  geom_col() 
+ 
+mean_ec_graph
+
+
+### for clay content ###
+mean_clay_graph <- ggplot(
+  data = soil_data_summary,
+  aes(
+    x = transect,
+    y = mean_clay_content, 
+    fill = transect
+  )
+) +
+  geom_col()
+
+mean_clay_graph
+
+
+### for soil sand content ###
+mean_sand_graph <- ggplot(
+  data = soil_data_summary,
+   aes(
+    x = transect,
+    y = mean_sand_content, 
+    fill = transect
+  )
+) +
+  geom_col()
+
+mean_sand_graph
+
+# GL-9 stands out as a transect with the highest clay content and lowest sand content
+
+### for soil percent moisture ###
+mean_soil_moisture_graph <- ggplot(
+  data = soil_data_summary,
+  aes(
+    x = transect,
+    y = mean_soil_moisture,
+    fill = transect
+  )
+) +
+  geom_col()
+
+mean_soil_moisture_graph
+
+
+```
+
+For each transect, I will plot where I took the core using the coordinates. Using the average soil conductivities I can divide it by some factor to create the size of the soil core point to visually represent the differences in soil EC at each transect
+
+
+# Part 6: Linear model trials 
+
+## 6.1 Check normality of ec_ds_per_m, clay content, and soil moisture
+```{r}
+
+# ggplot as base layer
+ggplot(
+  # using kelp data
+  data = soil_data,
+  # plotting temperature 
+  mapping = aes(sample = ec_ds_per_m)
+) +
+  # qq line is first layer
+  geom_qq_line() +
+  # qq points are second layer
+  # changing color of the points
+  geom_qq(color = 'yellow3') +
+  # setting theme as minimal
+  theme_cowplot()
+
+# ggplot as base layer
+ggplot(
+  # using kelp data
+  data = soil_data,
+  # plotting temperature 
+  mapping = aes(sample = clay)
+) +
+  # qq line is first layer
+  geom_qq_line() +
+  # qq points are second layer
+  # changing color of the points
+  geom_qq(color = 'brown') +
+  # setting theme as minimal
+  theme_cowplot()
+
+# ggplot as base layer
+ggplot(
+  # using kelp data
+  data = soil_data,
+  # plotting temperature 
+  mapping = aes(sample = percent_soil_moisture)
+) +
+  # qq line is first layer
+  geom_qq_line() +
+  # qq points are second layer
+  # changing color of the points
+  geom_qq(color = 'blue1') +
+  # setting theme as minimal
+  theme_cowplot()
+
+```
+
+## 6.2 Create linear models
+```{r}
+
+# model 1 #
+model_1 <- lm(
+  ec_ds_per_m ~ clay, # formula: change in soil EC as a function of clay percentage
+  data = soil_data      # using soil_data 
+)
+
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_1)    # will display diagnostic plots 
+
+
+# model 2 #
+model_2 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture, # formula: change in soil EC as a function of percent soil moisture 
+  data = soil_data      # using soil_data '
+)
+
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_2)    # will display diagnostic plots 
+
+
+# model 3 #
+model_3 <- lm(
+  percent_soil_moisture ~ clay, # formula: change in soil_moisture as a function of clay content
+  data = soil_data      # using soil_data '
+)
+
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_3)    # will display diagnostic plots 
+
+
+# model 4 
+model_4 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture + clay, # formula: change in soil ec as a function of soil moisture and clay content without an interaction
+  data = soil_data      # using soil_data '
+)
+
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_4)    # will display diagnostic plots 
+
+
+# model 5 
+model_5 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture * clay, # formula: change in soil ec as a function of soil moisture interacting with clay content
+  data = soil_data      # using soil_data '
+)
+
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_5)    # will display diagnostic plots 
+
+```
+
+## 6.3 Run AICc test
+```{r}
+
+AICc(
+  model_1,
+  model_2,
+  model_3,
+  model_4,
+  model_5
+) |>
+  arrange(AICc) # arrange AICc values by descending order 
+
+# The model with the lowest AICc is the strongest relationship
+# model_5 has the lowest AICc
+
+```
+
+Get a summary of Model 5
+```{r}
+
+summary(model_5)
+
+```
+
+## 6.4 Get model predictions 
+```{r}
+#| label: model_5 predictions
+
+# creating a new object called model_2_preds
+model_5_preds <- ggpredict(
+  model_5,      # model object
+  terms = "percent_soil_moisture"   # predictor (in quotation marks)
+)
+
+# display the predictions
+model_5_preds
+# this object will be used to create the regression line and its ribbon
+
+```
+
+## Plotting linear model 
+```{r}
+#| label: soil_moisture vs ec_u_s_cm -model-final-figure
+
+# base layer: ggplot
+# using clean data frame
+ggplot(data = soil_data,
+       aes(x = percent_soil_moisture,
+           y = ec_u_s_cm)) +
+  # first layer: points representing abalones
+  geom_point(size = 2,
+             stroke = 1,
+             fill = "firebrick4",
+             shape = 21) +
+  # second layer: ribbon representing confidence interval
+  # using predictions data frame
+  geom_ribbon(data = model_5_preds,
+              aes(x = x,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.1) +
+  # third layer: line representing model predictions
+  # using predictions data frame
+ geom_line(data = model_5_preds,
+            aes(x = x,
+                y = predicted)) +
+  # axis labels
+  labs(x = "Percent Soil Moisture", 
+       y = "Soil EC") +
+  # theme
+  theme_minimal()
+```
+
+The line of best fit and ribbnon are bellow all the actual points. Maybe the relationship is logarithmic?
+
+# Part 7: Is The Relationship Logarithmic?
+This part is expirementational 
+
+```{r}
+
+model_6 <- lm(log(ec_u_s_cm) ~ log(percent_soil_moisture), data = soil_data )
+
+summary(model_6)
+
+```
+
+```{r}
+#| label: model_6 predictions
+
+# creating a new object called model_2_preds
+model_6_preds <- ggpredict(
+  model_6,      # model object
+  terms = "percent_soil_moisture"   # predictor (in quotation marks)
+)
+
+# display the predictions
+model_6_preds
+
+```
+
+```{r}
+#| label: soil_moisture vs ec_u_s_cm -model-final-figure logarithmic
+
+# base layer: ggplot
+# using clean data frame
+ggplot(data = soil_data,
+       aes(x = percent_soil_moisture,
+           y = ec_u_s_cm)) +
+  # first layer: points representing abalones
+  geom_point(size = 2,
+             stroke = 1,
+             fill = "skyblue2",
+             shape = 21) +
+  # second layer: ribbon representing confidence interval
+  # using predictions data frame
+  geom_ribbon(data = model_6_preds,
+              aes(x = x,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.1) +
+  # third layer: line representing model predictions
+  # using predictions data frame
+ geom_line(data = model_6_preds,
+            aes(x = x,
+                y = predicted)) +
+  # axis labels
+  labs(x = "Percent Soil Moisture", 
+       y = "Soil EC") +
+  # theme
+  theme_minimal()
 ```
 
