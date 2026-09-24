@@ -383,18 +383,16 @@ model_1 <- lm(
   ec_ds_per_m ~ clay, # formula: change in soil EC as a function of clay percentage
   data = soil_data      # using soil_data 
 )
-
 par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
 plot(model_1)    # will display diagnostic plots 
 
 
 # model 2 #
-model_2 <- lm(
-  ec_ds_per_m ~ percent_soil_moisture, # formula: change in soil EC as a function of percent soil moisture 
-  data = soil_data      # using soil_data '
+model_1 <- lm(
+  ec_ds_per_m ~ sand, # formula: change in soil EC as a function of clay percentage
+  data = soil_data      # using soil_data 
 )
-
 par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
 plot(model_2)    # will display diagnostic plots 
@@ -402,21 +400,19 @@ plot(model_2)    # will display diagnostic plots
 
 # model 3 #
 model_3 <- lm(
-  percent_soil_moisture ~ clay, # formula: change in soil_moisture as a function of clay content
+  ec_ds_per_m ~ percent_soil_moisture, # formula: change in soil EC as a function of percent soil moisture 
   data = soil_data      # using soil_data '
 )
-
 par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
 plot(model_3)    # will display diagnostic plots 
 
 
-# model 4 
+# model 4 #
 model_4 <- lm(
-  ec_ds_per_m ~ percent_soil_moisture + clay, # formula: change in soil ec as a function of soil moisture and clay content without an interaction
+  percent_soil_moisture ~ clay, # formula: change in soil_moisture as a function of clay content
   data = soil_data      # using soil_data '
 )
-
 par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
 plot(model_4)    # will display diagnostic plots 
@@ -424,23 +420,83 @@ plot(model_4)    # will display diagnostic plots
 
 # model 5 
 model_5 <- lm(
-  ec_ds_per_m ~ percent_soil_moisture * clay, # formula: change in soil ec as a function of soil moisture interacting with clay content
+  ec_ds_per_m ~ percent_soil_moisture + clay, # formula: change in soil ec as a function of soil moisture and clay content without an interaction
   data = soil_data      # using soil_data '
 )
-
 par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
 plot(model_5)    # will display diagnostic plots 
 
-# model 6
+
+# model 6 
 model_6 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture * clay, # formula: change in soil ec as a function of soil moisture interacting with clay content
+  data = soil_data      # using soil_data '
+)
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_5)    # will display diagnostic plots 
+
+
+## model 7 ##
+model_7 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture * sand, # formula: change in soil EC as a function of percent soil moisture interacting with sand
+  data = soil_data      # using soil_data 
+)
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_7)    # will display diagnostic plots 
+
+
+# model 8 #
+model_8 <- lm(
   ec_ds_per_m ~ percent_soil_moisture * clay + sand,
+  data = soil_data
+)
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_8)    # will display diagnostic plots 
+
+
+# model 9
+model_9 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture * clay * sand,
+  data = soil_data
+)
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_9)    # will display diagnostic plots
+
+
+# model 10
+model_10 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture + clay + sand,
+  data = soil_data
+)
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_8)    # will display diagnostic plots
+
+
+# model 11 #
+model_11 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture * sand + clay,
   data = soil_data
 )
 
 par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
-plot(model_6)    # will display diagnostic plots 
+plot(model_9)    # will display diagnostic plots
+
+
+# model 12
+model_12 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture + sand * clay,
+  data = soil_data
+)
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_12)    # will display diagnostic plots
 
 ```
 
@@ -453,34 +509,41 @@ AICc(
   model_3,
   model_4,
   model_5,
-  model_6
+  model_6,
+  model_7,
+  model_8,
+  model_9,
+  model_10,
+  model_11,
+  model_12
 ) |>
   arrange(AICc) # arrange AICc values by descending order 
 
 # The model with the lowest AICc is the strongest relationship
-# model_5 has the lowest AICc
+# model_7 has the lowest AICc
+# model_7 is soil salinity predicted by soil moisture interacting with sand percentage
 
 ```
 
-Get a summary of Model 5
+Get a summary of Model 7
 ```{r}
 
-summary(model_5)
+summary(model_7)
 
 ```
 
 ## 6.4 Get model predictions 
 ```{r}
-#| label: model_5 predictions
+#| label: model_7 predictions
 
 # creating a new object called model_2_preds
-model_5_preds <- ggpredict(
-  model_5,      # model object
+model_7_preds <- ggpredict(
+  model_7,      # model object
   terms = "percent_soil_moisture"   # predictor (in quotation marks)
 )
 
 # display the predictions
-model_5_preds
+model_7_preds
 # this object will be used to create the regression line and its ribbon
 
 ```
@@ -501,7 +564,7 @@ ggplot(data = soil_data,
              shape = 21) +
   # second layer: ribbon representing confidence interval
   # using predictions data frame
-  geom_ribbon(data = model_5_preds,
+  geom_ribbon(data = model_7_preds,
               aes(x = x,
                   y = predicted,
                   ymin = conf.low,
@@ -509,7 +572,7 @@ ggplot(data = soil_data,
               alpha = 0.1) +
   # third layer: line representing model predictions
   # using predictions data frame
- geom_line(data = model_5_preds,
+ geom_line(data = model_7_preds,
             aes(x = x,
                 y = predicted)) +
   # axis labels
@@ -526,23 +589,23 @@ This part is expirementational
 
 ```{r}
 
-model_6 <- lm(log(ec_u_s_cm) ~ log(percent_soil_moisture), data = soil_data )
+model_13 <- lm(log(ec_u_s_cm) ~ log(percent_soil_moisture) * log(sand), data = soil_data )
 
-summary(model_6)
+summary(model_13)
 
 ```
 
 ```{r}
-#| label: model_6 predictions
+#| label: model_13 predictions
 
 # creating a new object called model_2_preds
-model_6_preds <- ggpredict(
-  model_6,      # model object
+model_13_preds <- ggpredict(
+  model_13,      # model object
   terms = "percent_soil_moisture"   # predictor (in quotation marks)
 )
 
 # display the predictions
-model_6_preds
+model_13_preds
 
 ```
 
@@ -561,7 +624,7 @@ ggplot(data = soil_data,
              shape = 21) +
   # second layer: ribbon representing confidence interval
   # using predictions data frame
-  geom_ribbon(data = model_6_preds,
+  geom_ribbon(data = model_13_preds,
               aes(x = x,
                   y = predicted,
                   ymin = conf.low,
@@ -569,7 +632,7 @@ ggplot(data = soil_data,
               alpha = 0.1) +
   # third layer: line representing model predictions
   # using predictions data frame
- geom_line(data = model_6_preds,
+ geom_line(data = model_13_preds,
             aes(x = x,
                 y = predicted)) +
   # axis labels
