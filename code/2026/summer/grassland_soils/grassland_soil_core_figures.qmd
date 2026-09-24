@@ -2,7 +2,7 @@
 title: "Summer 2026 Grassland Soil Core Figures"
 author: "Jared Umphress"
 subtitle: "Created: August 16, 2026
-           Last Updated: September 17, 2026 "
+           Last Updated: September 24, 2026 "
 format: 
   pdf:
     colorlinks: true
