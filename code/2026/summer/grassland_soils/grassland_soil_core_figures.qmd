@@ -432,6 +432,16 @@ par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
   # if you don't use par the plots will not be displayed at the same time
 plot(model_5)    # will display diagnostic plots 
 
+# model 6
+model_6 <- lm(
+  ec_ds_per_m ~ percent_soil_moisture * clay + sand,
+  data = soil_data
+)
+
+par(mfrow = c(2, 2))   # displays plots in a 2x2 grid
+  # if you don't use par the plots will not be displayed at the same time
+plot(model_6)    # will display diagnostic plots 
+
 ```
 
 ## 6.3 Run AICc test
@@ -442,7 +452,8 @@ AICc(
   model_2,
   model_3,
   model_4,
-  model_5
+  model_5,
+  model_6
 ) |>
   arrange(AICc) # arrange AICc values by descending order 
 
