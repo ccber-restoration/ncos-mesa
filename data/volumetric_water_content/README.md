@@ -16,7 +16,13 @@ Water content (m³/m³) is recorded at 60-minute intervals.
 
 Measurement volume is ~0.2 L.
 
-#FHJ 2026-03-02 note on location: the metadata from the logger files do not include the exact locations of the arrays. Would be great to get those. 
+Data logger locations:
+
+-  The metadata from the logger files do not include the exact locations of the arrays.
+-  Locations based on exif data from phone photos:
+  -  Lower: 34.42014, -119.87898
+  -  Upper: 34.419863, -119.879037
+     
 
 ## Temporal coverage
 
