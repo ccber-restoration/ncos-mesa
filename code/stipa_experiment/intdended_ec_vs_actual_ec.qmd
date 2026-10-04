@@ -1,15 +1,8 @@
-Created by Jared Umphress
-
-binomial logistic regression for survival across diff salinities
-visually compare total biomass, root to shoot ratio using jitter for the four salinity treatments
-
-statistically compare total biomass, root to shoot ratio using anova or non-parametric version
-
 ---
 title: "stipa_expirement_analysis"
 author: "Jared Umphress"
 subtitle: "Created: September 27, 2026
-           Last Updated: October 1, 2026 "
+           Last Updated: October 3, 2026 "
 format: 
   pdf:
     colorlinks: true
@@ -19,6 +12,13 @@ execute:
   warning: false
   message: false
 ---
+
+Created by Jared Umphress
+
+binomial logistic regression for survival across diff salinities
+visually compare total biomass, root to shoot ratio using jitter for the four salinity treatments
+
+statistically compare total biomass, root to shoot ratio using anova or non-parametric version
 
 # Part 1: Set up tasks
 
@@ -215,7 +215,7 @@ var.test(
   data = final_ec # data: final_ec
 )
 ```
-#### F statistic is 2.3021. Variances are not equal.
+F statistic is 2.3021. Variances are not equal.
 
 ```{r}
 #| label: t-test
@@ -223,13 +223,13 @@ var.test(
 t.test(
   # formula: response variable ~ grouping variable
   ec_converted ~ water_trt, 
-  # argument for equal/unequal variances (variances should be equal)
+  # argument for equal/unequal variances 
   var.equal = FALSE, 
   # data: final_ec
   data = final_ec
 )
 ```
-#### We determined that the mean soil ec values between the wet water treatments and dry water treatments were not different. 
+We determined that the mean soil ec values between the wet water treatments and dry water treatments were not different. 
 
 
 # Part 3: Comparing the dry biomasses
@@ -531,304 +531,7 @@ ggplot(data = final_mass,
 ```
 
 
-# Part 3.2: Compare masses based on water treatment
 
-## Get mean biomasses per salinity group
-```{r}
-
-water_mass_summary <- final_mass %>%
-  group_by(water_trt) %>%
-  summarise(
-    mean_total_mass = mean(total_mass, na.rm = TRUE),
-    sd_total_mass = sd(total_mass, na.rm = TRUE),
-    
-    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
-    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
-    
-    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
-    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
-    
-    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
-    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
-    
-    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
-    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
-    
-    n_sampled = n(),
-  ) 
-
-```
-
-## Visualize the total masses of the plants across WATER treatments 
-```{r}
-
-# base layer is ggplot
-# data is final_mass
-ggplot(data = final_mass,
-       mapping = aes(x = water_trt,
-                     y = total_mass,
-                     color = water_trt
-                     )) +
-  # second layer is a jitter plot
-  geom_jitter(
-              # width is set to 0.15 to tighten the horizontal jitter
-              width = 0.17,  
-               # height is set to 0 so that there is no vertical jitter
-              height = 0,  
-              # open circle point shape for jitter points
-              shape = 21,   
-               # increasing transparency so that it is easier to see the mean
-              alpha = 0.8  
-             ) +  
-   geom_pointrange(data = water_mass_summary,  
-                  # points displayed based on weekday vs weekend grouping
-                  mapping = aes(x = water_trt, 
-                                # mean computer time is the y value
-                                y = mean_total_mass,   
-                                # upper bound is the mean plus 
-                                #  a standard deviation
-                                ymax = mean_total_mass + sd_total_mass, 
-                                # lower bound is the mean minus 
-                                #  a standard deviation
-                                ymin = mean_total_mass - sd_total_mass)) +
-  # changing axis labels and title
-  labs(x = "Water Treatment",
-       y = "Total mass (g)",
-       title = "Total Mass across Water Treatments"
-      ) +
-  # changing theme from default theme to theme_classic
-  # theme_classic creates a white panel with no grid lines
-  theme_classic() +
-  # removing the legend 
-  theme(legend.position = "none")
-
-```
-
-```{r}
-#| label: qq-plot
-
-# base layer: ggplot call
-ggplot(data = final_mass, # starting data frame
-       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
-  # first layer: QQ reference line 
-  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
-  # second layer: QQ plot
-  geom_qq() + 
-  # creating "facets"
-  facet_wrap(~water_trt) # show watersheds separately
-
-```
-
-```{r}
-#| label: F-test
-
-# doing F test of equal variances
-var.test(
-  total_mass ~ water_trt, # formula: response variable ~ grouping variable
-  data = final_mass # data: final_ec
-)
-```
-#### F statistic is 2.3021. Variances are not equal.
-
-```{r}
-#| label: t-test
-
-t.test(
-  # formula: response variable ~ grouping variable
-  total_mass ~ water_trt, 
-  # argument for equal/unequal variances (variances should be equal)
-  var.equal = FALSE, 
-  # data: final_ec
-  data = final_mass
-)
-
-```
-# low statistical difference in mean total mass between water treatments (p = 0.2847)
-
-
-
-## Visualize live shoot across water treatments 
-```{r}
-
-# base layer is ggplot
-# data is final_mass
-ggplot(data = final_mass,
-       mapping = aes(x = water_trt,
-                     y = live_shoot_dry_mass_g,
-                     color = water_trt
-                     )) +
-  # second layer is a jitter plot
-  geom_jitter(
-              # width is set to 0.15 to tighten the horizontal jitter
-              width = 0.17,  
-               # height is set to 0 so that there is no vertical jitter
-              height = 0,  
-              # open circle point shape for jitter points
-              shape = 21,   
-               # increasing transparency so that it is easier to see the mean
-              alpha = 0.8  
-             ) +  
-   geom_pointrange(data = water_mass_summary,  
-                  # points displayed based on weekday vs weekend grouping
-                  mapping = aes(x = water_trt, 
-                                # mean computer time is the y value
-                                y = mean_live_shoot_mass,   
-                                # upper bound is the mean plus 
-                                #  a standard deviation
-                                ymax = mean_live_shoot_mass + sd_live_shoot_mass, 
-                                # lower bound is the mean minus 
-                                #  a standard deviation
-                                ymin = mean_live_shoot_mass - sd_live_shoot_mass)) +
-  # changing axis labels and title
-  labs(x = "Water Treatment",
-       y = "Total live shoot mass (g)",
-       title = "Total Live Shoot Mass across Water Treatments"
-      ) +
-  # changing theme from default theme to theme_classic
-  # theme_classic creates a white panel with no grid lines
-  theme_classic() +
-  # removing the legend 
-  theme(legend.position = "none")
-
-```
-
-
-## Visualize root mass
-```{r}
-
-# base layer is ggplot
-# data is final_mass
-ggplot(data = final_mass,
-       mapping = aes(x = water_trt,
-                     y = root_dry_mass_g,
-                     color = water_trt
-                     )) +
-  # second layer is a jitter plot
-  geom_jitter(
-              # width is set to 0.15 to tighten the horizontal jitter
-              width = 0.17,  
-               # height is set to 0 so that there is no vertical jitter
-              height = 0,  
-              # open circle point shape for jitter points
-              shape = 21,   
-               # increasing transparency so that it is easier to see the mean
-              alpha = 0.8  
-             ) +  
-   geom_pointrange(data = water_mass_summary,  
-                  # points displayed based on weekday vs weekend grouping
-                  mapping = aes(x = water_trt, 
-                                # mean computer time is the y value
-                                y = mean_root_mass,   
-                                # upper bound is the mean plus 
-                                #  a standard deviation
-                                ymax = mean_root_mass + sd_root_mass, 
-                                # lower bound is the mean minus 
-                                #  a standard deviation
-                                ymin = mean_root_mass - sd_root_mass)) +
-  # changing axis labels and title
-  labs(x = "Water Treatment",
-       y = "Total root mass (g)",
-       title = "Total Root Mass across Water Treatments"
-      ) +
-  # changing theme from default theme to theme_classic
-  # theme_classic creates a white panel with no grid lines
-  theme_classic() +
-  # removing the legend 
-  theme(legend.position = "none")
-
-```
-
-
-## Visualize all shoot mass across salinity treatments
-```{r}
-
-# base layer is ggplot
-# data is final_mass
-ggplot(data = final_mass,
-       mapping = aes(x = water_trt,
-                     y = all_shoot_mass,
-                     color = water_trt
-                     )) +
-  # second layer is a jitter plot
-  geom_jitter(
-              # width is set to 0.15 to tighten the horizontal jitter
-              width = 0.17,  
-               # height is set to 0 so that there is no vertical jitter
-              height = 0,  
-              # open circle point shape for jitter points
-              shape = 21,   
-               # increasing transparency so that it is easier to see the mean
-              alpha = 0.8  
-             ) +  
-   geom_pointrange(data = water_mass_summary,  
-                  # points displayed based on weekday vs weekend grouping
-                  mapping = aes(x = water_trt, 
-                                # mean computer time is the y value
-                                y = mean_all_shoot_mass,   
-                                # upper bound is the mean plus 
-                                #  a standard deviation
-                                ymax = mean_all_shoot_mass + sd_all_shoot_mass, 
-                                # lower bound is the mean minus 
-                                #  a standard deviation
-                                ymin = mean_all_shoot_mass - sd_all_shoot_mass)) +
-  # changing axis labels and title
-  labs(x = "Water Treatment",
-       y = "Total all shoot mass (g)",
-       title = "Total All Shoot Mass across water Treatments"
-      ) +
-  # changing theme from default theme to theme_classic
-  # theme_classic creates a white panel with no grid lines
-  theme_classic() +
-  # removing the legend 
-  theme(legend.position = "none")
-
-```
-
-
-## Visualize root to shoot ratio across salinity treatments 
-```{r}
-
-# base layer is ggplot
-# data is final_mass
-ggplot(data = final_mass,
-       mapping = aes(x = water_trt,
-                     y = root_to_shoot,
-                     color = water_trt
-                     )) +
-  # second layer is a jitter plot
-  geom_jitter(
-              # width is set to 0.15 to tighten the horizontal jitter
-              width = 0.17,  
-               # height is set to 0 so that there is no vertical jitter
-              height = 0,  
-              # open circle point shape for jitter points
-              shape = 21,   
-               # increasing transparency so that it is easier to see the mean
-              alpha = 0.8  
-             ) +  
-   geom_pointrange(data = water_mass_summary,  
-                  # points displayed based on weekday vs weekend grouping
-                  mapping = aes(x = water_trt, 
-                                # mean computer time is the y value
-                                y = mean_root_to_shoot,   
-                                # upper bound is the mean plus 
-                                #  a standard deviation
-                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
-                                # lower bound is the mean minus 
-                                #  a standard deviation
-                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
-  # changing axis labels and title
-  labs(x = "Water Treatment",
-       y = "Root to Shoot Ratio",
-       title = "Root to Shoot Ratio across Water Treatments"
-      ) +
-  # changing theme from default theme to theme_classic
-  # theme_classic creates a white panel with no grid lines
-  theme_classic() +
-  # removing the legend 
-  theme(legend.position = "none")
-
-```
 
 
 
