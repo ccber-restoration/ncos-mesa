@@ -14,8 +14,7 @@ execute:
 ---
 
 comparing biomass based on salinity groups using the average ec measured
-
-
+TLDR: Of the salinity groups: 2.98, 5.58, 9.98, 11.81, the group that had the higher biomass production on average was 9.98. Based on our data and analysis, 9.98 dS may be the optimal salinity for our local genotype of stipa pulchra to grow. 
 
 # Part 1: Set up tasks
 
@@ -111,20 +110,25 @@ mass_summary <- final_mass %>%
   summarise(
     mean_total_mass = mean(total_mass, na.rm = TRUE),
     sd_total_mass = sd(total_mass, na.rm = TRUE),
+
     
     mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
     sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    #n_live_shoot_mass = count(live_shoot_dry_mass_g, na.rm = TRUE),
     
     mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
     sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+   # n_all_shoot_mass = count(all_shoot_mass, na.rm = TRUE),
     
     mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
     sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+   # n_root_mass = count(root_dry_mass_g, na.rm = TRUE),
     
     mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
     sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+   # n_root_to_shoot = count(root_to_shoot, na.rm = TRUE),
     
-    n_sampled = n(),
+    n_sampled = n()
   ) %>%
   arrange(pooled_salinity_trt)
 
@@ -177,10 +181,129 @@ ggplot(data = final_mass,
 
 ```
 
-- anova/wilcoxon assumptions
-- run anova
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
 
 
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "tomato2") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+Data follows qq line pretty well in the four groups. Some skewing at the edges. 
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(total_mass, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+# 11.81 ec/9.98 ec: 1.47/1.87 = 
+# 2.98 ec/ 5.58 ec: 0.564/0.742 =
+
+1.47/1.87
+0.564/0.742
+1.87/0.564 # 3.31
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 3.31 the variances may not be equal enough. 
+
+```{r}
+
+total_mass_anova <- aov(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+total_mass_anova
+
+# more info
+summary(total_mass_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(total_mass_anova)
+
+# 9.98 has a significantly higher total mass mean than 2.98 dS and 5.58 dS group.
+# Bordeline 9.98 has a higher mean than 11.81 (p = 0.11)
+```
+
+
+```{r}
+
+eta_squared(total_mass_anova)
+# large effect size is > 0.14. Our effect size was 0.23
+
+```
+
+### What if we did a non parametric test: kruskall.test ###
+
+```{r}
+
+
+kruskal.test(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+```
+
+
+```{r}
+
+dunn_test(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+
+```
+
+
+```{r}
+
+kruskal_effsize(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+# effectsize was 0.1
+# moderate effect size
+
+
+```
 
 
 ## 2.2: Compare live shoot mass across salinity treatments
@@ -230,6 +353,94 @@ ggplot(data = final_mass,
 ```
 
 
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = live_shoot_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "pink") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+9.98 and 11.81 ec groups have tail end skew. Especially 9.98. 
+2.98 and 5.58 follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(live_shoot_dry_mass_g, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+# 11.81 ec/9.98 ec: 0.0561/0.106
+# 2.98 ec/ 5.58 ec: 
+
+0.0561/0.106
+0.106/0.00287 # equals 36
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 36 the variances are definitely not equal.
+
+```{r}
+
+live_shoot_anova <- aov(
+  live_shoot_dry_mass_g ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+live_shoot_anova
+
+# more info
+summary(live_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(live_shoot_anova)
+
+```
+9.98 higher live shoot than 2.98 and 5.58 groups
+9.98 similar to 11.81 live shoot masses
+
+```{r}
+
+eta_squared(live_shoot_anova)
+# 0.29
+
+```
+large effect size is > 0.14. Our effect size was 0.29
+
+
 ## 2.3: Compare root mass across salinity treatments
 Visualize root mass across salinity treatments
 ```{r}
@@ -275,6 +486,92 @@ ggplot(data = final_mass,
   theme(legend.position = "none")
 
 ```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = root_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "magenta") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+9.98 and 11.81 ec groups have tail end skew. Especially 9.98. 
+2.98 and 5.58 follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(root_dry_mass_g, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.341/0.132
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 2.58 the variances are equal enough.
+
+
+```{r}
+
+root_anova <- aov(
+  root_dry_mass_g ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+root_anova
+
+# more info
+summary(root_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(root_anova)
+
+```
+9.98 higher root than 2.98 and 5.58 groups
+9.98 somewhat similar to 11.81 root masses (p = 0.15)
+
+```{r}
+
+eta_squared(root_anova)
+# 0.16
+
+```
+large effect size is > 0.14. Our effect size was 0.16
+
 
 
 ## 2.4: Compare all shoot mass across salinity treatments
@@ -324,6 +621,91 @@ ggplot(data = final_mass,
 ```
 
 
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = all_shoot_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = all_shoot_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "grey") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+11.81 ec group has tail end skew. Especially 9.98. 
+The other three follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(all_shoot_mass, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.645/0.189 # equal to 3.41
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 3.41 the variances are NOT equal enough.
+
+
+```{r}
+
+all_shoot_anova <- aov(
+  all_shoot_mass ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+root_anova
+
+# more info
+summary(all_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(all_shoot_anova)
+
+```
+9.98 higher root than 2.98 and 5.58 groups
+9.98 statistically signifcantly different enough from 11.81 all shoot mass in terms of ecological alpha significant (p = 0.08)
+
+```{r}
+
+eta_squared(all_shoot_anova)
+# 0.26
+
+```
+
+
+
 ## 2.5: Compare root to shoot ratio across salinity treatments
 Visualize root to shoot ratio across salinity treatments 
 ```{r}
@@ -371,6 +753,116 @@ ggplot(data = final_mass,
 ```
 
 
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "yellow3") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+2.98 ec groups have tail end skew. Especially 9.98. 
+The other three follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(root_to_shoot, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.0878/0.0227 # equal to 3.87
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 3.87 the variances are NOT equal enough.
+
+
+```{r}
+
+root_to_shoot_anova <- aov(
+  root_to_shoot ~ pooled_salinity_trt,
+  data = final_mass
+)
+
+root_anova
+
+# more info
+summary(root_to_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(root_to_shoot_anova)
+
+```
+No statistically significant difference between any of the salinity groups in terms of root to shoot ratio. 
+
+```{r}
+
+eta_squared(root_to_shoot_anova)
+# 0.0519
+
+```
+small effect size 
+
+
+
+
 # Conclusions
 
-The salinity group of 9.98 seems to have the highest total biomass, live shoot, root mass. All root to shoot ratios are comparble. The results seem to suggest that 3 dS and 6 dS are too low for our local genotype. 11.81 dS is too high. But 10 dS on average is justttt right. 
+9.98 dS has a significantly higher total mass mean than 2.98 dS and 5.58 dS group.
+Bordeline 9.98 dS has a higher mean than 11.81 dS (p = 0.11)
+
+9.98 dS higher live shoot than 2.98 dS and 5.58 dS groups
+9.98 dS mean similar to 11.81 dS live shoot masses (0.94)
+
+9.98 dS higher root than 2.98 dS and 5.58 dS groups
+9.98 dS higher than 11.81 dS root masses (p = 0.15)
+
+9.98 dS higher all shoot than 2.98 dS and 5.58 dS groups
+9.98 dS statistically significantly different enough from 11.81 dS all shoot mass in terms of ecological alpha significant (p = 0.08). 9.98 dS had a greater mean than 11.81 dS
+
+No statistically significant difference between any of the salinity groups in terms of root to shoot ratio. 
+
+
+- 9.98 dS had greater mean total mass, live shoot, root, and all shoot than the two lower salinity groups: 2.98 dS and 5.58 dS. 
+- 9.98 dS had a higher mean total mass, root, and shoot than 11.81 but with weaker statistical significance (p-value)
+
+Overall, it seems that salinity did have an impact on stipa pulchra. Lower salinities produced less biomass. 11.81 might have been slightly too much biomass. And thus 9.98 was like the goldie locks salinity for stipa pulchra to survive. 
+
+Why might stipa pulchra grown the best under 9.98 dS? The local genotype may be adapted to salt spray and saline soils. Calflora states that stipa has an upper salinity tolerance of 8. In the greenhouse setting, the higher salinity could have controlled microbial pathogens from growing as opposed to lower salinities. The higher salinity could have also protected against aphid pests, which were observed (qualitatively) more heavily on the lower two salinity groups. 
+
+
+
+

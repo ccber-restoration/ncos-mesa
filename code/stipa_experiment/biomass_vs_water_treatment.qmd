@@ -34,6 +34,7 @@ library(MuMIn) # model selection
 library(ggeffects) # generating model predictions
 
 library(ggplot2) # for ggplot
+library(rstatix) # for cohens_d test
 ```
 
 
@@ -213,6 +214,17 @@ We did not find a significant difference in total mass between wet
 treated (n = 34, mean = 2.26 grams) and dry (n = 34, mean = 1.95 grams)
 treated (Welch’s t-test, t(57.45) = 3.8, p = 0.28, 𝛼 = 0.05).
 
+```{r}
+#| label: cohen's d
+
+cohens_d(
+  total_mass ~ water_trt,
+  data = final_mass
+  #pooled_sd = FALSE
+)
+
+```
+Cohen's d was 0.267. So water treatment had a small effect size. 
 
 ## 2.2: Live shoot
 Visualize live shoot across water treatments 
