@@ -88,7 +88,7 @@ final_mass <- final_mass %>%
     plant_id >= 1 & plant_id <= 20 ~ "2.98",
     plant_id >= 21 & plant_id <= 40 ~ "5.58",
     plant_id >= 41 & plant_id <= 60 ~ "9.98",   # this is actually 7.5 intended
-    plant_id >= 61 & plant_id <= 80 ~ "11.81",
+    plant_id >= 61 & plant_id <= 80 ~ "11.81"
  )) %>%
     # add water treatments to the plants
     mutate(water_trt = case_when(
