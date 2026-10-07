@@ -38,6 +38,9 @@ Download dates:
 - 2025-12-05 
 - 2026-01-26 
 - 2026-03-02
+- 2026-06-02 (with Jacob Pike)
+- 2026-06-03 (confirming if still functioning)
+- 2026-10-06 (with Bruno & Devon; batteries in lower logger dead)
 
 Known gaps:
 
