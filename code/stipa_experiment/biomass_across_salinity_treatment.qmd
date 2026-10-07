@@ -95,6 +95,16 @@ final_mass <- final_mass %>%
     plant_id >= 41 & plant_id <= 60 ~ "9.98",   # this is actually 7.5 intended
     plant_id >= 61 & plant_id <= 80 ~ "11.81",
  )) %>%
+    mutate(water_trt = case_when(
+     plant_id >= 1 & plant_id <= 10 ~ "wet",
+     plant_id >= 11 & plant_id <= 20 ~ "dry",
+     plant_id >= 21 & plant_id <= 30 ~ "wet",
+     plant_id >= 31 & plant_id <= 40 ~ "dry",
+     plant_id >= 41 & plant_id <= 50 ~ "wet",
+     plant_id >= 51 & plant_id <= 60 ~ "dry",
+     plant_id >= 61 & plant_id <= 70 ~ "wet",
+     plant_id >= 71 & plant_id <= 80 ~ "dry"
+  )) %>%
   mutate(total_mass = root_dry_mass_g + live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
   mutate(all_shoot_mass = live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
   mutate(root_to_shoot = root_dry_mass_g / (live_shoot_dry_mass_g + dead_shoot_dry_mass_g))
@@ -839,8 +849,1518 @@ small effect size
 
 
 
+# Part 3: Comparing the dry biomasses for just the DRY treatment plants
+
+Filter for just the dry treatment groups
+```{r}
+
+final_mass_just_dry <- final_mass %>%
+  filter(water_trt == "dry")
+
+
+```
+
+
+
+## Get mean total_biomass per salinity group
+```{r}
+
+mass_summary_just_dry <- final_mass_just_dry %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    #n_live_shoot_mass = count(live_shoot_dry_mass_g, na.rm = TRUE),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+   # n_all_shoot_mass = count(all_shoot_mass, na.rm = TRUE),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+   # n_root_mass = count(root_dry_mass_g, na.rm = TRUE),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+   # n_root_to_shoot = count(root_to_shoot, na.rm = TRUE),
+    
+    n_sampled = n()
+  ) %>%
+  arrange(pooled_salinity_trt)
+
+```
+
+
+## 3.1: Compare total mass across salinity treatments
+Visualize the total masses of the plants across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_just_dry,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = total_mass,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_just_dry,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Salinity Treatments",
+       subtitle = "Just dry treatment"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "tomato2") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+Data follows qq line pretty well in the four groups. Some skewing at the edges. 
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_just_dry %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(total_mass, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+1.65/0.113
+# 14.6
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 3.31 the variances may not be equal enough. 
+
+```{r}
+
+dry_total_mass_anova <- aov(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+dry_total_mass_anova
+
+# more info
+summary(dry_total_mass_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(dry_total_mass_anova)
+
+# No statistically significant differences in the total biomasses for just dry treatment
+```
+
+
+```{r}
+
+eta_squared(dry_total_mass_anova)
+# large effect size is > 0.14. Our effect size was 0.09
+
+```
+
+### What if we did a non parametric test: kruskall.test ###
+
+```{r}
+
+
+kruskal.test(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+```
+
+
+```{r}
+
+dunn_test(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+
+```
+
+
+```{r}
+
+kruskal_effsize(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+# effectsize was 0.1
+# small effect size
+
+
+```
+
+
+## 3.2: Compare live shoot mass across salinity treatments
+Visualize live shoot across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_just_dry,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = live_shoot_dry_mass_g,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_just_dry,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_live_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_live_shoot_mass + sd_live_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_live_shoot_mass - sd_live_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total live shoot mass (g)",
+       title = "Total Live Shoot Mass across Salinity Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(x = live_shoot_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "pink") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+9.98 and 11.81 ec groups have tail end skew. Especially 9.98. 
+2.98 and 5.58 follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_just_dry %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(live_shoot_dry_mass_g, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.079/0.0029
+# 27.24
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 36 the variances are definitely not equal.
+
+```{r}
+
+dry_live_shoot_anova <- aov(
+  live_shoot_dry_mass_g ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+dry_live_shoot_anova
+
+# more info
+summary(dry_live_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(dry_live_shoot_anova)
+
+# 11.81 has higher live shoot than 5.58 (p = 0.064)
+
+```
+
+
+```{r}
+
+eta_squared(dry_live_shoot_anova)
+# 0.22
+
+```
+large effect size is > 0.14. Our effect size was 0.22
+
+
+## 3.3: Compare root mass across salinity treatments
+Visualize root mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_just_dry,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = root_dry_mass_g,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_just_dry,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_mass + sd_root_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_mass - sd_root_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total root mass (g)",
+       title = "Total Root Mass across Salinity Treatments",
+       subtitle = "Just dry"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(x = root_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "magenta") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+9.98 and 11.81 ec groups have tail end skew. Especially 9.98. 
+2.98 and 5.58 follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_just_dry %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(root_dry_mass_g, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.476/0.03
+# 15.87
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 15.87 the variances are equal enough.
+
+
+```{r}
+
+dry_root_anova <- aov(
+  root_dry_mass_g ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+dry_root_anova
+
+# more info
+summary(dry_root_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(dry_root_anova)
+
+```
+
+
+```{r}
+
+eta_squared(dry_root_anova)
+# 0.1341
+
+```
+large effect size is > 0.14. Our effect size was 0.1341
+
+
+
+## 3.4: Compare all shoot mass across salinity treatments
+Visualize all shoot mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_just_dry,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = all_shoot_mass,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_just_dry,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_all_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_all_shoot_mass + sd_all_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_all_shoot_mass - sd_all_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total all shoot mass (g)",
+       title = "Total All Shoot Mass across Salinity Treatments",
+       subtitle = "Just dry"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(x = all_shoot_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(sample = all_shoot_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "grey") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+11.81 ec group has tail end skew. Especially 9.98. 
+The other three follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_just_dry %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(all_shoot_mass, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.505/0.0594 # equal to 8.5
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 8.5 the variances are NOT equal enough.
+
+
+```{r}
+
+dry_all_shoot_anova <- aov(
+  all_shoot_mass ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+dry_all_shoot_anova
+
+# more info
+summary(dry_all_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(dry_all_shoot_anova)
+
+#No statistically significant differences in all shoot mass between the groups for just dry  #treatments
+
+
+```
+
+```{r}
+
+eta_squared(dry_all_shoot_anova)
+# 0.2033
+
+```
+
+
+
+## 3.5: Compare root to shoot ratio across salinity treatments
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_just_dry,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = root_to_shoot,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_just_dry,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Salinity Treatments",
+       subtitle = "just dry"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(69)^(1/3) 
+# 8.2
+
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 8) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "yellow3") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+2.98 ec groups have tail end skew. Especially 9.98. 
+The other three follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_just_dry %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(root_to_shoot, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+1.02/0.0196 # equal to 52.04
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 52.04082 the variances are NOT equal enough.
+
+
+```{r}
+
+dry_root_to_shoot_anova <- aov(
+  root_to_shoot ~ pooled_salinity_trt,
+  data = final_mass_just_dry
+)
+
+dry_root_anova
+
+# more info
+summary(dry_root_to_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(dry_root_to_shoot_anova)
+
+```
+No statistically significant difference between any of the salinity groups in terms of root to shoot ratio. 
+
+```{r}
+
+eta_squared(dry_root_to_shoot_anova)
+# 0.0597
+
+```
+small effect size 
+
+
+# Break 
+
+# Part 4: Comparing the dry biomasses for just the WET treatment plants
+
+Filter for just the dry treatment groups
+```{r}
+
+final_mass_wet <- final_mass %>%
+  filter(water_trt == "wet")
+
+
+```
+
+
+
+## Get mean total_biomass per salinity group
+```{r}
+
+mass_summary_wet <- final_mass_wet %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    #n_live_shoot_mass = count(live_shoot_dry_mass_g, na.rm = TRUE),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+   # n_all_shoot_mass = count(all_shoot_mass, na.rm = TRUE),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+   # n_root_mass = count(root_dry_mass_g, na.rm = TRUE),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+   # n_root_to_shoot = count(root_to_shoot, na.rm = TRUE),
+    
+    n_sampled = n()
+  ) %>%
+  arrange(pooled_salinity_trt)
+
+```
+
+
+## 4.1: Compare total mass across salinity treatments
+Visualize the total masses of the plants across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_wet,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = total_mass,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_wet,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Salinity Treatments",
+       subtitle = "Just wet treatment"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.4
+
+ggplot(data = final_mass_wet, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_wet, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "tomato2") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+Data follows qq line pretty well in the four groups. Some skewing at the edges. 
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_wet %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(total_mass, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+1.36/1.06
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 1.28 the variances ARE equal enough. 
+
+```{r}
+
+wet_total_mass_anova <- aov(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+wet_total_mass_anova
+
+# more info
+summary(wet_total_mass_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(wet_total_mass_anova)
+
+
+```
+9.98 has statistically significantly higher mass than 2.98, 5.58 and 11.81
+
+```{r}
+
+eta_squared(wet_total_mass_anova)
+# large effect size is > 0.14. Our effect size was 0.38
+
+```
+
+### What if we did a non parametric test: kruskall.test ###
+
+```{r}
+
+
+kruskal.test(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+```
+
+
+```{r}
+
+dunn_test(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+# 9.98 has statistically significantly higher total mass than 2.98, 5.58 and 11.81 for just wet
+
+```
+
+
+
+```{r}
+
+kruskal_effsize(
+  total_mass ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+# effectsize was 0.262
+# large effect size
+
+
+```
+
+
+## 4.2: Compare live shoot mass across salinity treatments
+Visualize live shoot across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_wet,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = live_shoot_dry_mass_g,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_wet,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_live_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_live_shoot_mass + sd_live_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_live_shoot_mass - sd_live_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total live shoot mass (g)",
+       title = "Total Live Shoot Mass across Salinity Treatments",
+       subtitle = "Just wet"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.4
+
+ggplot(data = final_mass_wet, # starting data frame
+       aes(x = live_shoot_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_wet, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "pink") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+9.98 and 11.81 ec groups have tail end skew. Especially 9.98. 
+2.98 and 5.58 follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_wet %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(live_shoot_dry_mass_g, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.119/0.0136
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 8.75 the variances are definitely not equal.
+
+```{r}
+
+wet_live_shoot_anova <- aov(
+  live_shoot_dry_mass_g ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+wet_live_shoot_anova
+
+# more info
+summary(wet_live_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(wet_live_shoot_anova)
+
+# 9.98 higher live shoot than 2.98 and 5.58 for just wet
+
+```
+
+
+```{r}
+
+eta_squared(wet_live_shoot_anova)
+# 0.38
+
+```
+large effect size is > 0.14. Our effect size was 0.38
+
+
+## 4.3: Compare root mass across salinity treatments
+Visualize root mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_wet,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = root_dry_mass_g,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_wet,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_mass + sd_root_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_mass - sd_root_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total root mass (g)",
+       title = "Total Root Mass across Salinity Treatments",
+       subtitle = "Just wet"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.4
+
+ggplot(data = final_mass_wet, # starting data frame
+       aes(x = root_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_wet, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "magenta") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+9.98 and 11.81 ec groups have tail end skew. Especially 9.98. 
+2.98 and 5.58 follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_wet %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(root_dry_mass_g, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.292/0.231
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 1.26 the variances ARE equal enough.
+
+
+```{r}
+
+wet_root_anova <- aov(
+  root_dry_mass_g ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+wet_root_anova
+
+# more info
+summary(wet_root_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(wet_root_anova)
+
+# The 9.98 has greater root mass than 5.58 and 2.98. Under ecological statistical significant 9.98 also has greater mass than 11.81 (p = 0.0665) for just wet
+
+```
+
+
+
+```{r}
+
+eta_squared(wet_root_anova)
+# 0.277
+
+```
+large effect size is > 0.14. Our effect size was 0.277
+
+
+
+## 4.4: Compare all shoot mass across salinity treatments
+Visualize all shoot mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_wet,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = all_shoot_mass,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_wet,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_all_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_all_shoot_mass + sd_all_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_all_shoot_mass - sd_all_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total all shoot mass (g)",
+       title = "Total All Shoot Mass across Salinity Treatments",
+       subtitle = "Just wet"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+8+9+8+9
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.4
+
+ggplot(data = final_mass_wet, # starting data frame
+       aes(x = all_shoot_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+distribution are normal except for 11.81 which has right skew
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_wet, # starting data frame
+       aes(sample = all_shoot_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "grey") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+11.81 ec group has tail end skew. 
+The other three follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_wet %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(all_shoot_mass, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.503/0.341 # equal to 1.475
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 1.47 the variances ARE equal enough.
+
+
+```{r}
+
+wet_all_shoot_anova <- aov(
+  all_shoot_mass ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+wet_root_anova
+
+# more info
+summary(wet_all_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(wet_all_shoot_anova)
+
+# 9.98 higher all shoot mass than 2.98 and 5.58 groups
+# 9.98 statistically signifcantly different from 11.81 all shoot mass (p = 0.01) for just wet
+
+```
+
+
+```{r}
+
+eta_squared(wet_all_shoot_anova)
+# 0.44
+
+```
+
+
+
+## 4.5: Compare root to shoot ratio across salinity treatments
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass_wet
+ggplot(data = final_mass_wet,
+       mapping = aes(x = pooled_salinity_trt,
+                     y = root_to_shoot,
+                     color = pooled_salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary_wet,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = pooled_salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Salinity Treatments",
+       subtitle = "just wet"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# total n sampled:
+17+18+18+16
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.4
+
+ggplot(data = final_mass_just_dry, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~pooled_salinity_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_wet, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "yellow3") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~pooled_salinity_trt) # show watersheds separately
+
+```
+2.98 and 5.58 ec groups have tail end skew
+The other three follow qq line pretty strongly
+
+
+```{r}
+#| label: Manually calculate variances
+
+final_mass_wet %>%
+  group_by(pooled_salinity_trt) %>%
+  summarise(
+    variance = var(root_to_shoot, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+0.14/0.011
+# 12.73
+
+
+```
+If the ratio of the largest variance to the smallest variance is less than 3 than the variances are equal enough. Since the ratio I calculated was 12.73 the variances are NOT equal enough.
+
+
+```{r}
+
+wet_root_to_shoot_anova <- aov(
+  root_to_shoot ~ pooled_salinity_trt,
+  data = final_mass_wet
+)
+
+wet_root_anova
+
+# more info
+summary(wet_root_to_shoot_anova)
+
+```
+
+
+```{r}
+
+# Tukey Honestly Significant Difference
+#    this will tell me which groups are actually different
+TukeyHSD(wet_root_to_shoot_anova)
+
+
+# No statistically significant difference between any of the salinity groups in terms of root to shoot ratio. 
+
+```
+
+
+```{r}
+
+eta_squared(wet_root_to_shoot_anova)
+# 0.1428
+
+```
+large effect size
+
+
+
+
+
+
 # Conclusions
 
+## Listed statistical results
+
+---- Analyzing with wet and dry treatments pooled together ---
 9.98 dS has a significantly higher total mass mean than 2.98 dS and 5.58 dS group.
 Bordeline 9.98 dS has a higher mean than 11.81 dS (p = 0.11)
 
@@ -855,11 +2375,38 @@ Bordeline 9.98 dS has a higher mean than 11.81 dS (p = 0.11)
 
 No statistically significant difference between any of the salinity groups in terms of root to shoot ratio. 
 
+------
 
-- 9.98 dS had greater mean total mass, live shoot, root, and all shoot than the two lower salinity groups: 2.98 dS and 5.58 dS. 
-- 9.98 dS had a higher mean total mass, root, and shoot than 11.81 but with weaker statistical significance (p-value)
+Just dry
 
-Overall, it seems that salinity did have an impact on stipa pulchra. Lower salinities produced less biomass. 11.81 might have been slightly too much biomass. And thus 9.98 was like the goldie locks salinity for stipa pulchra to survive. 
+-No statistically significant differences in the total biomasses for just dry treatment
+-11.81 has higher live shoot than 5.58 (p = 0.064)
+-no statistically significant difference in root masses for just dry treatments
+-No statistically significant differences in all shoot mass between the groups for just dry  #treatments
+-no statistically significant differences in root to shoot for just dry treatments
+
+
+--------------
+
+Just wet
+
+- 9.98 has statistically significantly higher total mass than 2.98, 5.58 and 11.81 for just wet
+- 9.98 higher live shoot than 2.98 and 5.58 for just wet
+- The 9.98 has greater root mass than 5.58 and 2.98. Under ecological statistical significant 9.98 also has greater mass than 11.81 (p = 0.0665) for just wet
+- 9.98 higher all shoot mass than 2.98 and 5.58 groups
+- 9.98 statistically signifcantly different from 11.81 all shoot mass (p = 0.01) for just wet
+- No statistically significant differences in root to shoot for just wet treatments
+
+
+## Interpretation
+
+When comparing mass between salinity groups while pooling wet vs dry, it seems that salinity did have an impact on stipa pulchra. 9.98 had statistically significant higher mass values for total mass, live shoot, all shoot, and roots. Lower salinities produced less biomass. 11.81 might have been slightly too much salinity. And thus 9.98 was like the goldie locks salinity for stipa pulchra to survive. 
+
+When comparing mass between salinity groups for just the dry treatment, I did not find any statistically significant differences in biomass for total mass, live shoot, dry shoot, etc. 
+
+When comparing mass between salinity groups for just the wet treatments, 9.98 had statistically significant higher total mass, live shoot mass, root mass, and all shoot mass.
+
+Root to shoot ratios never were statistically significant. 
 
 Why might stipa pulchra grown the best under 9.98 dS? The local genotype may be adapted to salt spray and saline soils. Calflora states that stipa has an upper salinity tolerance of 8. In the greenhouse setting, the higher salinity could have controlled microbial pathogens from growing as opposed to lower salinities. The higher salinity could have also protected against aphid pests, which were observed (qualitatively) more heavily on the lower two salinity groups. 
 
