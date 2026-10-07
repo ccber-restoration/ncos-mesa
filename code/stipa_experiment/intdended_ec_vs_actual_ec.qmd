@@ -232,6 +232,9 @@ t.test(
 We determined that the mean soil ec values between the wet water treatments and dry water treatments were not different. 
 
 
+# Can delete everything below this
+
+
 # Part 3: Comparing the dry biomasses
 
 ## Load in data

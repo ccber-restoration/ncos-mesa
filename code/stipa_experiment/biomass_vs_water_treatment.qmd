@@ -1741,9 +1741,13 @@ Write this out in fuller sentences later. With proper statistical wording.
 
 When comparing the stipa pulchra groups in wet (n = ), vs dry (n = ) across all salinity treatments, we did not find a statistically significant difference in total mass, live mass, root mass, nor root to shoot ratio. 
 
-Interestingly, when looking at the 9.98 dS group in particular, there was a statistically significant differende in total mass between the wet and dry treatment group. On average, the wet treatment group had a greater biomass. This might not translate to the field as these plants are growing in well draining and aerated soils compared to the more clay soils on the mesa. 
+I also compared the biomasses between wet vs dry for each salinity group. For 2.98, 5.58 and 11.41 dS there were no statistically significant differences in their total mass or root to shoot ratios. 
 
-Interpretation: Our data and analysis suggest that stipa pulchra with "wet feet" vs regular watering did not have an impact on the successful growth of stipa pulchra.
+Interestingly, when looking at the 9.98 dS group in particular, there was a statistically significant difference in total mass between the wet and dry treatment group. On average, the wet treatment group had a greater biomass. This might not translate to the field as these plants are growing in well draining and aerated soils compared to the more clay soils on the mesa. 
+
+Interpretation: Our data and analysis suggest that stipa pulchra with "wet feet" vs regular watering did not a strong impact on the successful growth of stipa pulchra overall.
+
+When looking at the 9.98 dS group, which is of interest, there is a statistically significant difference in biomass between wet vs dry treatment.
 
 
 
