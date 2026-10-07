@@ -43,7 +43,7 @@ final_ec <- read.csv(here("data/stipa_salinity_experiment/final_stipa_soil_ec.cs
 
 ```
 
-# Part 2: Comparing the dry biomasses
+# Part 2: Binomial regression across the four salinity groups (including wet/dry)
 
 ### Convert stipa ec values to dS/m and account for water dilution
 ```{r}
@@ -90,6 +90,16 @@ final_mass <- final_mass %>%
     plant_id >= 41 & plant_id <= 60 ~ "9.98",   # this is actually 7.5 intended
     plant_id >= 61 & plant_id <= 80 ~ "11.81",
  )) %>%
+    # add water treatments to the plants
+    mutate(water_trt = case_when(
+     plant_id >= 1 & plant_id <= 10 ~ "wet",
+     plant_id >= 11 & plant_id <= 20 ~ "dry",
+     plant_id >= 21 & plant_id <= 30 ~ "wet",
+     plant_id >= 31 & plant_id <= 40 ~ "dry",
+     plant_id >= 41 & plant_id <= 50 ~ "wet",
+     plant_id >= 51 & plant_id <= 60 ~ "dry",
+     plant_id >= 61 & plant_id <= 70 ~ "wet",
+     plant_id >= 71 & plant_id <= 80 ~ "dry")) %>%
   # creting total biomass column
   mutate(total_mass = root_dry_mass_g + live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
   # creating column representing total mass of the live plus dead shoot dry mass
@@ -197,6 +207,51 @@ Visualize model predictions
 mod_preds <- ggpredict(survival_model_1,
                        terms = "pooled_salinity_trt [0:15 by = 0.5]")
 
+fig_binomial_wet_and_dry <- ggplot(data = final_mass,
+       aes(x = pooled_salinity_trt,
+           y = survival)) + 
+  geom_point(size = 3,
+             alpha = 0.5) +
+  geom_ribbon(data = mod_preds,
+              aes(x = x,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+              alpha = 0.4)) +
+  geom_line(data = mod_preds,
+            aes(x = x, 
+                y = predicted)) +
+  scale_y_continuous(limits = c(0,1),
+                     breaks = c(0,1)) + 
+  labs(
+    title = "Survival is highest around 7.5 dS",
+    subtitle = "Data includes both the wet and dry treated plants",
+    y = "Predicted percent chance of survival",
+    x = "Salinity (dS)"
+  )
+
+#save to file
+ggsave(filename = here("figures/stipa_expirement/2026/2026_stipa_binomial_wet_and_dry.jpg"),
+       fig_binomial_wet_and_dry,
+       width = 6,
+       height = 4,
+       units = "in",
+       bg = "white")
+
+```
+
+
+```{r}
+
+# creating flextable to show intercept estimate, slope estimate from saliniity effects. standard error, and z value
+as_flextable(survival_model_1)
+
+```
+
+## Is it valid to just use facet_wrap
+
+```{r}
+
 ggplot(data = final_mass,
        aes(x = pooled_salinity_trt,
            y = survival)) + 
@@ -212,7 +267,113 @@ ggplot(data = final_mass,
             aes(x = x, 
                 y = predicted)) +
   scale_y_continuous(limits = c(0,1),
-                     breaks = c(0,1))
+                     breaks = c(0,1)) +
+  facet_wrap(~ water_trt)
+
+```
+
+
+# Part 3: Binomial regression across four salinities (fitering for just dry)
+
+```{r}
+
+final_mass_dry_trt <- final_mass %>%
+  filter(water_trt == "dry")
+
+```
+
+# running general linearilized model
+```{r}
+
+survival_model_2 <- glm(
+  # survival as response to the different pooled_salinity_trt groups
+  survival ~ pooled_salinity_trt,
+  # using final_mass data
+  data = final_mass_dry_trt,
+  # running the binomial model
+  family = "binomial"
+)
+
+```
+
+
+look at diagnostics
+```{r}
+
+# plot QQ plot 
+# also runs the KS test, dispersion test, outlier test
+# n.s. result indicates that the results are not significant and not likely to affect 
+plot(
+  simulateResiduals(survival_model_2)
+)
+
+```
+
+What each test means and the results
+- KS test (Kolmogorov-Smirnov): do
+your residuals follow a uniform
+distribution? 
+- Dispersion test: are your residuals
+more dispersed than expected from a
+uniform distribution? 
+- Outlier test: are there outliers in
+your data set that could be
+influencing model coefficients or
+predictions? 
+
+Some of the tests returned an answer that wasn't "not significant"
+
+```{r}
+
+summary(survival_model_2)
+
+# what does plogis do?
+plogis(0)
+plogis(10)
+
+```
+
+
+Look at the model predictions
+```{r}
+
+
+ggpredict(survival_model_2,
+          terms = "pooled_salinity_trt [5]")
+
+# If the salinity is 5 dS then the probability that the plant will survive is 0.88
+
+```
+
+
+Visualize model predictions
+```{r}
+
+mod_preds <- ggpredict(survival_model_2,
+                       terms = "pooled_salinity_trt [0:15 by = 0.5]")
+
+ggplot(data = final_mass_dry_trt,
+       aes(x = pooled_salinity_trt,
+           y = survival)) + 
+  geom_point(size = 3,
+             alpha = 0.5) +
+  geom_ribbon(data = mod_preds,
+              aes(x = x,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+              alpha = 0.4)) +
+  geom_line(data = mod_preds,
+            aes(x = x, 
+                y = predicted)) +
+  scale_y_continuous(limits = c(0,1),
+                     breaks = c(0,1)) +
+  labs(
+    title = "Survival is highest around 10 dS",
+    subtitle = "Data includes only the wet treated plants",
+    y = "Predicted percent chance of survival",
+    x = "Salinity (dS)"
+  )
 
 
 ```
@@ -221,9 +382,127 @@ ggplot(data = final_mass,
 ```{r}
 
 # creating flextable to show intercept estimate, slope estimate from saliniity effects. standard error, and z value
-as_flextable(survival_model_1)
+as_flextable(survival_model_2)
 
 ```
+
+
+# Part 4: Binomial regression across four salinities (fitering for just wet)
+
+```{r}
+
+final_mass_wet_trt <- final_mass %>%
+  filter(water_trt == "wet")
+
+```
+
+# running general linearilized model
+```{r}
+
+survival_model_3 <- glm(
+  # survival as response to the different pooled_salinity_trt groups
+  survival ~ pooled_salinity_trt,
+  # using final_mass data
+  data = final_mass_wet_trt,
+  # running the binomial model
+  family = "binomial"
+)
+
+```
+
+
+look at diagnostics
+```{r}
+
+# plot QQ plot 
+# also runs the KS test, dispersion test, outlier test
+# n.s. result indicates that the results are not significant and not likely to affect 
+plot(
+  simulateResiduals(survival_model_3)
+)
+
+```
+
+What each test means and the results
+- KS test (Kolmogorov-Smirnov): do
+your residuals follow a uniform
+distribution? p = 0.9
+- Dispersion test: are your residuals
+more dispersed than expected from a
+uniform distribution?  p = 0.7
+- Outlier test: are there outliers in
+your data set that could be
+influencing model coefficients or
+predictions? p = 1
+
+Some of the tests returned an answer that wasn't "not significant"
+
+```{r}
+
+summary(survival_model_3)
+
+# what does plogis do?
+plogis(0)
+plogis(10)
+
+```
+
+
+Look at the model predictions
+```{r}
+
+
+ggpredict(survival_model_3,
+          terms = "pooled_salinity_trt [5]")
+
+# If the salinity is 5 dS then the probability that the plant will survive is 0.88
+
+```
+
+
+Visualize model predictions
+```{r}
+
+mod_preds <- ggpredict(survival_model_3,
+                       terms = "pooled_salinity_trt [0:15 by = 0.5]")
+
+ggplot(data = final_mass_wet_trt,
+       aes(x = pooled_salinity_trt,
+           y = survival)) + 
+  geom_point(size = 3,
+             alpha = 0.5) +
+  geom_ribbon(data = mod_preds,
+              aes(x = x,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+              alpha = 0.4)) +
+  geom_line(data = mod_preds,
+            aes(x = x, 
+                y = predicted)) +
+  scale_y_continuous(limits = c(0,1),
+                     breaks = c(0,1)) +
+  labs(
+    title = "Survival is greater at higher salinities",
+    subtitle = "Data includes only the wet treated plants",
+    y = "Predicted percent chance of survival",
+    x = "Salinity (dS)"
+  )
+
+
+```
+
+
+```{r}
+
+# creating flextable to show intercept estimate, slope estimate from saliniity effects. standard error, and z value
+as_flextable(survival_model_3)
+
+```
+
+
+
+
 
 
 
