@@ -1,0 +1,553 @@
+---
+title: "stipa_expirement_analysis"
+author: "Jared Umphress"
+subtitle: "Created: September 27, 2026
+           Last Updated: October 3, 2026 "
+format: 
+  pdf:
+    colorlinks: true
+toc: true
+
+execute:
+  warning: false
+  message: false
+---
+
+Created by Jared Umphress
+
+binomial logistic regression for survival across diff salinities
+visually compare total biomass, root to shoot ratio using jitter for the four salinity treatments
+
+statistically compare total biomass, root to shoot ratio using anova or non-parametric version
+
+# Part 1: Set up tasks
+
+Load in libraries
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(here)
+
+#plotting
+library(cowplot)
+library(ggthemes) # to use Paul Tol color palettes
+
+# packages specifically for soil science
+library(aqp) # algorithms for quantitative pedology
+# library(soiltexture)
+
+library(MuMIn) # model selection
+library(ggeffects) # generating model predictions
+
+library(ggplot2) # for ggplot
+```
+
+Load in data
+```{r}
+
+final_ec <- read.csv(here("data/stipa_salinity_experiment/final_stipa_soil_ec.csv"))
+
+```
+The stipa ec values from 07/10/26 were only one plant per group. Not enough to get a good idea of the salnity per group. It serves as a check in on the expirement. It was the salniity when we applied the saline treatment 2 of the 3 days. After harvesting we started to water 3 days a week. 
+
+# Part 2: EC Values
+
+### Convert stipa ec values to dS/m and account for water dilution
+```{r}
+
+source(here("code/mS_per_cm_to_dS_per_m.R"))
+
+final_ec <- final_ec %>%
+  clean_names() %>%
+  mutate(
+    ec_ds_per_m = uS_per_cm_to_dS_per_m(ec_u_s_m),
+    ec_converted = (ec_u_s_m/1000)*5,
+    year = year(date_measured),
+    treatment = paste(as.character(salinity_trt), water_trt)
+  ) %>%
+  arrange(desc(salinity_trt))
+  
+
+```
+
+
+### Get average ec value per treatment group
+```{r}
+
+mean_ec_values <- final_ec %>%
+  group_by(treatment) %>%
+  summarise(
+    mean_ec = mean(ec_converted),
+    sd_ec = sd(ec_converted),
+    n_sampled = n()
+  )
+
+```
+
+### Create column for average ec value per treatment group
+```{r}
+
+final_ec <- final_ec %>%
+  mutate(
+    actual_treatment = case_match(
+      treatment,
+      "11 wet" ~ "10.039 dS wet",
+      "11 dry" ~ "13.59 dS dry",
+      "7.5 wet" ~ "10.201 dS wet (7.5)",
+      "7.5 dry" ~ "9.755 dS dry",
+      "4 wet" ~ "6.490 dS wet",
+      "4 dry" ~ "4.666 dS dry",
+      "0.8 dry" ~ "2.426 dS dry",
+      "0.8 wet" ~ "3.513 dS wet"
+    ))
+
+```
+This is the actual ec value per treatment group. This included the water treatment and intended salinity. 
+
+### Create plot of actual ec values vs target
+```{r}
+
+target_ec <- final_ec %>%
+  select(salinity_trt, ec_converted, water_trt)
+
+ggplot(
+  data = target_ec,
+  aes(x = salinity_trt,
+                y = ec_converted,
+      color = water_trt)) +
+    geom_point() +
+    geom_abline(slope = 1) +
+  labs(x = "Intended Salinity (dS)",
+       y = "Actual Salinity (dS)")
+
+# 36 of the 40 measured soils salinities surpased the intended salinity 
+
+```
+
+## Part 2.2: Compare wet vs dry treatments
+
+### are wet treatments on average more saline than the dry treatments?
+```{r}
+
+wet_v_dry <- final_ec %>%
+  group_by(water_trt) %>%
+  summarise(mean_ec = mean(ec_converted),
+            sd_ec = sd(ec_converted),
+            n_sampled = n())
+
+# mean_dry = 7.60
+# mean_wet = 7.56
+# the mean ec_values are pretty similar
+# can run a t.test to compare
+
+```
+
+### Visualize mean and sd of each water treament 
+```{r}
+
+# base layer is ggplot
+# data is final_ec
+ggplot(data = final_ec,
+       mapping = aes(x = water_trt,
+                     y = ec_converted,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = wet_v_dry,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_ec,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_ec + sd_ec, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_ec - sd_ec))
+  # manually setting colors for the treatment groups
+  scale_color_manual(values = c("dry" = "yellow3",
+                                "wet" = 'skyblue2')) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Salinity (dS/m)",
+       title = "Title"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_ec, # starting data frame
+       aes(sample = ec_converted)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  ec_converted ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_ec # data: final_ec
+)
+```
+F statistic is 2.3021. Variances are not equal.
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  ec_converted ~ water_trt, 
+  # argument for equal/unequal variances 
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_ec
+)
+```
+We determined that the mean soil ec values between the wet water treatments and dry water treatments were not different. 
+
+
+# Can delete everything below this
+
+
+# Part 3: Comparing the dry biomasses
+
+## Load in data
+```{r}
+
+final_mass <- read_csv(here("data/stipa_salinity_experiment/final_mass_08_13.csv"))
+
+```
+
+
+## Add the actual treatment group (actual ec + water treatment) for the plants based on their ID's
+```{r}
+
+final_mass <- final_mass %>%
+  mutate(salinity_trt = case_when(
+    plant_id >= 1 & plant_id <= 10 ~ "3.513",
+     plant_id >= 11 & plant_id <= 20 ~ "2.426",
+     plant_id >= 21 & plant_id <= 30 ~ "6.490",
+     plant_id >= 31 & plant_id <= 40 ~ "4.666",
+     plant_id >= 41 & plant_id <= 50 ~ "10.201",   # this is actually 7.5 intended
+     plant_id >= 51 & plant_id <= 60 ~ "9.755",
+     plant_id >= 61 & plant_id <= 70 ~ "10.039",
+     plant_id >= 71 & plant_id <= 80 ~ "13.590"
+  )) %>%
+  mutate(water_trt = case_when(
+     plant_id >= 1 & plant_id <= 10 ~ "wet",
+     plant_id >= 11 & plant_id <= 20 ~ "dry",
+     plant_id >= 21 & plant_id <= 30 ~ "wet",
+     plant_id >= 31 & plant_id <= 40 ~ "dry",
+     plant_id >= 41 & plant_id <= 50 ~ "wet",
+     plant_id >= 51 & plant_id <= 60 ~ "dry",
+     plant_id >= 61 & plant_id <= 70 ~ "wet",
+     plant_id >= 71 & plant_id <= 80 ~ "dry"
+  )) %>%
+  mutate(total_mass = root_dry_mass_g + live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
+  mutate(all_shoot_mass = live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
+  mutate(root_to_shoot = root_dry_mass_g / (live_shoot_dry_mass_g + dead_shoot_dry_mass_g))
+
+```
+
+# Part 3.1: Compare biomasses based on salinity treatments 
+## Get mean total_biomass per salinity group
+```{r}
+
+mass_summary <- final_mass %>%
+  group_by(salinity_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+    
+    n_sampled = n(),
+  ) %>%
+  arrange(salinity_trt)
+
+```
+
+
+## Visualize the total masses of the plants across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = salinity_trt,
+                     y = total_mass,
+                     color = salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Salinity Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+## Visualize live shoot across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = salinity_trt,
+                     y = live_shoot_dry_mass_g,
+                     color = salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_live_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_live_shoot_mass + sd_live_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_live_shoot_mass - sd_live_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total live shoot mass (g)",
+       title = "Total Live Shoot Mass across Salinity Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+## Visualize root mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = salinity_trt,
+                     y = root_dry_mass_g,
+                     color = salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_mass + sd_root_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_mass - sd_root_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total root mass (g)",
+       title = "Total Root Mass across Salinity Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+## Visualize all shoot mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = salinity_trt,
+                     y = all_shoot_mass,
+                     color = salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_all_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_all_shoot_mass + sd_all_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_all_shoot_mass - sd_all_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Total all shoot mass (g)",
+       title = "Total All Shoot Mass across Salinity Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+## Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = salinity_trt,
+                     y = root_to_shoot,
+                     color = salinity_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = salinity_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Salinity Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Salinity Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+
+
+
+
+# Compare mean total mass of groups with ANOVA or equivalent
+
+
+
+# number of individuals per group over time
+
+
+
+
+# binomial logistic regression for survival
+
+
+

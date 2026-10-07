@@ -1,0 +1,1755 @@
+---
+title: "biomass_vs_water_treatment"
+author: "Jared Umphress"
+subtitle: "Created: October 1, 2026
+           Last Updated: October 3, 2026 "
+format: 
+  pdf:
+    colorlinks: true
+toc: true
+
+execute:
+  warning: false
+  message: false
+---
+
+# Part 1: Set up tasks
+
+Load in libraries
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(here)
+
+#plotting
+library(cowplot)
+library(ggthemes) # to use Paul Tol color palettes
+
+# packages specifically for soil science
+library(aqp) # algorithms for quantitative pedology
+# library(soiltexture)
+
+library(MuMIn) # model selection
+library(ggeffects) # generating model predictions
+
+library(ggplot2) # for ggplot
+library(rstatix) # for cohens_d test
+```
+
+
+Load in data
+```{r}
+
+final_mass <- read_csv(here("data/stipa_salinity_experiment/final_mass_08_13.csv"))
+
+```
+
+
+### Add the actual treatment group (actual ec + water treatment) for the plants based on their ID's
+```{r}
+
+final_mass <- final_mass %>%
+  mutate(salinity_trt = case_when(
+    plant_id >= 1 & plant_id <= 10 ~ "3.513",
+     plant_id >= 11 & plant_id <= 20 ~ "2.426",
+     plant_id >= 21 & plant_id <= 30 ~ "6.490",
+     plant_id >= 31 & plant_id <= 40 ~ "4.666",
+     plant_id >= 41 & plant_id <= 50 ~ "10.201",   # this is actually 7.5 intended
+     plant_id >= 51 & plant_id <= 60 ~ "9.755",
+     plant_id >= 61 & plant_id <= 70 ~ "10.039",
+     plant_id >= 71 & plant_id <= 80 ~ "13.590"
+  )) %>%
+   mutate(pooled_salinity_trt = case_when(
+    plant_id >= 1 & plant_id <= 20 ~ "2.98",
+    plant_id >= 21 & plant_id <= 40 ~ "5.58",
+    plant_id >= 41 & plant_id <= 60 ~ "9.98",   # this is actually 7.5 intended
+    plant_id >= 61 & plant_id <= 80 ~ "11.81")) %>%
+  mutate(water_trt = case_when(
+     plant_id >= 1 & plant_id <= 10 ~ "wet",
+     plant_id >= 11 & plant_id <= 20 ~ "dry",
+     plant_id >= 21 & plant_id <= 30 ~ "wet",
+     plant_id >= 31 & plant_id <= 40 ~ "dry",
+     plant_id >= 41 & plant_id <= 50 ~ "wet",
+     plant_id >= 51 & plant_id <= 60 ~ "dry",
+     plant_id >= 61 & plant_id <= 70 ~ "wet",
+     plant_id >= 71 & plant_id <= 80 ~ "dry"
+  )) %>%
+  mutate(total_mass = root_dry_mass_g + live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
+  mutate(all_shoot_mass = live_shoot_dry_mass_g + dead_shoot_dry_mass_g) %>%
+  mutate(root_to_shoot = root_dry_mass_g / (live_shoot_dry_mass_g + dead_shoot_dry_mass_g))
+
+final_mass$pooled_salinity_trt <- as.numeric(final_mass$pooled_salinity_trt)
+
+```
+
+# Part 2: Compare masses based on water treatment
+
+### Get mean biomasses per water treatment group (wet/dry)
+```{r}
+
+water_mass_summary <- final_mass %>%
+  group_by(water_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+    n_total_mass = n(),
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    n_live_shoot_mass = n(),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+    n_all_shoot_mass = n(),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+    n_root_mass = n(),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+    n_root_to_shoot = n(),
+    
+    n_sampled = n(),
+  ) 
+
+```
+
+### 2.1: Total Mass
+Visualize the total masses of the plants across WATER treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = water_trt,
+                     y = total_mass,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Water Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  total_mass ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F(29, 29) = 0.43, p = 0.02).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  total_mass ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass
+)
+
+```
+We did not find a significant difference in total mass between wet
+treated (n = 34, mean = 2.26 grams) and dry (n = 34, mean = 1.95 grams)
+treated (Welch’s t-test, t(57.45) = 3.8, p = 0.28, 𝛼 = 0.05).
+
+```{r}
+#| label: cohen's d
+
+cohens_d(
+  total_mass ~ water_trt,
+  data = final_mass
+  #pooled_sd = FALSE
+)
+
+```
+Cohen's d was 0.267. So water treatment had a small effect size. 
+
+### 2.2: Live shoot
+Visualize live shoot across water treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = water_trt,
+                     y = live_shoot_dry_mass_g,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_live_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_live_shoot_mass + sd_live_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_live_shoot_mass - sd_live_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total live shoot mass (g)",
+       title = "Total Live Shoot Mass across Water Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = live_shoot_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+Both histograms are skewed left.
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = live_shoot_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "tomato2") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data is not that normally distributed. 40 sample size so can relax normality?
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  live_shoot_dry_mass_g ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F(30, 30) = 0.71, p = 0.35).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  live_shoot_dry_mass_g ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass
+)
+
+```
+p - value is 0.951. No significant difference in total mass based on water treatment
+
+
+### 2.3: Root mass
+Visualize root mass
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = water_trt,
+                     y = root_dry_mass_g,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_mass + sd_root_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_mass - sd_root_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total root mass (g)",
+       title = "Total Root Mass across Water Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = root_dry_mass_g)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+Pretty normal and the total sample is 34, so you can apply central limit theorem. 
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = root_dry_mass_g)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "orchid") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line pretty well will some skew at the ends. Can conclude that data is normally distributed
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  root_dry_mass_g ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F(33, 33) = 0.68, p = 0.28).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  root_dry_mass_g ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass
+)
+
+```
+p - value is 0.5171. The difference in root dry mass between wet and dry treatment groups is not statistically significant.
+
+
+### 2.4: All shoot mass (live + dead)
+Visualize all shoot mass across salinity treatments
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = water_trt,
+                     y = all_shoot_mass,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_all_shoot_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_all_shoot_mass + sd_all_shoot_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_all_shoot_mass - sd_all_shoot_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total all shoot mass (g)",
+       title = "Total All Shoot Mass across water Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = all_shoot_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+Pretty normal
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = all_shoot_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "skyblue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line moderately well. 
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  all_shoot_mass ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F(29, 29) = 0.32, p < 0.05).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  all_shoot_mass ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass
+)
+
+```
+p - value = 0.1902. Difference in all shoot mass is not statistically significant.
+
+
+### 2.5: Root to shoot
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass,
+       mapping = aes(x = water_trt,
+                     y = root_to_shoot,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Water Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 6) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+Wet has an outlier on the right. 
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "chocolate") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line moderately well. For wet group there is big skew towards the upper end. 
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  root_to_shoot ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F(29, 29) = 0.69, p = 0.31).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  root_to_shoot ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass
+)
+
+```
+p - value = 0.8817. The difference in root to shoot ratio between wet vs dry groups was not statistically significant. 
+
+
+# Part 3: Compare biomass between wet and dry within each salinity group
+
+## 3.1: For the 2.98 dS
+```{r}
+
+final_mass_3_dS <- final_mass %>%
+  filter(pooled_salinity_trt == "2.98")
+
+```
+
+```{r}
+
+water_mass_summary_3_ds <- final_mass_3_dS %>%
+  group_by(water_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+    n_total_mass = n(),
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    n_live_shoot_mass = n(),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+    n_all_shoot_mass = n(),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+    n_root_mass = n(),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+    n_root_to_shoot = n(),
+    
+    n_sampled = n(),
+  ) 
+```
+
+
+### 3.1.1 Total Mass
+
+Visualize the total masses of the plants across WATER treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_3_dS,
+       mapping = aes(x = water_trt,
+                     y = total_mass,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_3_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Water Treatments"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass_3_dS, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_3_dS, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+points follow the line well
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  total_mass ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_3_dS # data: final_mass_3_dS
+)
+```
+We determined that group variances were not equal (F-test, F(7,7) = 0.11, p = 0.009).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  total_mass ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_3_dS
+)
+
+```
+We did not find a significant difference in total mass between wet
+treated (n = 8, mean = 1.68 grams) and dry (n = 8, mean = 1.94 grams)
+treated (Welch’s t-test, t(8.4872) = 0.68, p = 0.51, 𝛼 = 0.05).
+
+```{r}
+#| label: cohen's d
+
+cohens_d(
+  total_mass ~ water_trt,
+  data = final_mass_3_dS
+  #pooled_sd = FALSE
+)
+
+```
+Cohen's d was 0.267. So water treatment had a small effect size. 
+
+
+### 3.1.2 Root to shoot
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_3_dS,
+       mapping = aes(x = water_trt,
+                     y = root_to_shoot,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_3_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Water Treatments",
+       subtitle = "Data just the 3 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(8)^(1/3) 
+# 4
+
+ggplot(data = final_mass_3_dS, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_3_dS, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "chocolate") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line moderately well. For wet group there is big skew towards the upper end. 
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  root_to_shoot ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_3_dS # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F() = , p = ).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  root_to_shoot ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_3_dS
+)
+
+```
+p - value = 0.2456. The difference in root to shoot ratio between wet vs dry groups was not statistically significant. 
+
+
+
+## 3.2: For the 5.58 dS
+```{r}
+
+final_mass_5_dS <- final_mass %>%
+  filter(pooled_salinity_trt == "5.58")
+
+```
+
+```{r}
+
+water_mass_summary_5_ds <- final_mass_5_dS %>%
+  group_by(water_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+    n_total_mass = n(),
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    n_live_shoot_mass = n(),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+    n_all_shoot_mass = n(),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+    n_root_mass = n(),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+    n_root_to_shoot = n(),
+    
+    n_sampled = n(),
+  ) 
+```
+
+
+### 3.2.1 Total Mass
+
+Visualize the total masses of the plants across WATER treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_5_dS,
+       mapping = aes(x = water_trt,
+                     y = total_mass,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_5_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Water Treatments",
+       subtitle = "Just the 5 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(34)^(1/3) 
+# 6.47
+
+ggplot(data = final_mass_5_dS, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_5_dS, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+points follow the line well
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  total_mass ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_5_dS # data: final_mass_3_dS
+)
+```
+We determined that group variances were not equal (F-test, F(7,7) = 0.11, p = 0.009).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  total_mass ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_5_dS
+)
+
+```
+We did not find a significant difference in total mass between wet
+treated (n = 8, mean = 1.68 grams) and dry (n = 8, mean = 1.94 grams)
+treated (Welch’s t-test, t(8.4872) = 0.68, p = 0.51, 𝛼 = 0.05).
+
+
+```{r}
+#| label: cohen's d
+
+cohens_d(
+  total_mass ~ water_trt,
+  data = final_mass_5_dS
+  #pooled_sd = FALSE
+)
+
+```
+Cohen's d was 0.267. So water treatment had a small effect size. 
+
+
+### 3.2.2 Root to shoot
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_5_dS,
+       mapping = aes(x = water_trt,
+                     y = root_to_shoot,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_5_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Water Treatments",
+       subtitle = "Data just the 5 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(8)^(1/3) 
+# 4
+
+ggplot(data = final_mass_5_dS, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_5_dS, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "chocolate") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line moderately well. For wet group there is big skew towards the upper end. 
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  root_to_shoot ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_5_dS # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F() = , p = ).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  root_to_shoot ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_5_dS
+)
+
+```
+p - value = 0.129. The difference in root to shoot ratio between wet vs dry groups was not statistically significant. 
+
+
+## 3.3: For the 9.98 dS
+```{r}
+
+final_mass_9_dS <- final_mass %>%
+  filter(pooled_salinity_trt == "9.98")
+
+```
+
+```{r}
+
+water_mass_summary_9_ds <- final_mass_9_dS %>%
+  group_by(water_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+    n_total_mass = n(),
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    n_live_shoot_mass = n(),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+    n_all_shoot_mass = n(),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+    n_root_mass = n(),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+    n_root_to_shoot = n(),
+    
+    n_sampled = n(),
+  ) 
+```
+
+
+### 3.3.1 Total Mass
+
+Visualize the total masses of the plants across WATER treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_9_dS,
+       mapping = aes(x = water_trt,
+                     y = total_mass,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_9_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Water Treatments",
+       subtitle = "Just the 9 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(8)^(1/3) 
+# 4
+
+ggplot(data = final_mass_9_dS, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_9_dS, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  total_mass ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_9_dS # data: final_mass_9_dS
+)
+```
+We determined that group variances were equal?
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  total_mass ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = TRUE, 
+  # data: final_ec
+  data = final_mass_9_dS
+)
+
+```
+#### We found a significant difference in total mass between wet
+treated (n = 8, mean = 3.76 grams) and dry (n = 8, mean = 2.2 grams)
+treated (Student’s t-test, t(15) = -2.77, p = 0.014, 𝛼 = 0.05).
+
+```{r}
+#| label: cohen's d
+
+cohens_d(
+  total_mass ~ water_trt,
+  data = final_mass_9_dS
+  #pooled_sd = FALSE
+)
+
+```
+Cohen's d was -1.34. So water treatment had a large effect size. 
+
+
+### 3.3.2 Root to shoot
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_9_dS,
+       mapping = aes(x = water_trt,
+                     y = root_to_shoot,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_9_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Water Treatments",
+       subtitle = "Data just the 9 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(8)^(1/3) 
+# 4
+
+ggplot(data = final_mass_9_dS, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_9_dS, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "chocolate") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line moderately well. For wet group there is big skew towards the upper end. 
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  root_to_shoot ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_9_dS # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F() = , p = ).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  root_to_shoot ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_9_dS
+)
+
+```
+p - value = 0.2678. The difference in root to shoot ratio between wet vs dry groups was not statistically significant. 
+
+
+
+
+## 3.4: For the 11.81 dS
+```{r}
+
+final_mass_11_dS <- final_mass %>%
+  filter(pooled_salinity_trt == "11.81")
+
+```
+
+```{r}
+
+water_mass_summary_11_ds <- final_mass_11_dS %>%
+  group_by(water_trt) %>%
+  summarise(
+    mean_total_mass = mean(total_mass, na.rm = TRUE),
+    sd_total_mass = sd(total_mass, na.rm = TRUE),
+    n_total_mass = n(),
+    
+    mean_live_shoot_mass = mean(live_shoot_dry_mass_g, na.rm = TRUE),
+    sd_live_shoot_mass = sd(live_shoot_dry_mass_g, na.rm = TRUE),
+    n_live_shoot_mass = n(),
+    
+    mean_all_shoot_mass = mean(all_shoot_mass, na.rm = TRUE),
+    sd_all_shoot_mass = sd(all_shoot_mass, na.rm = TRUE),
+    n_all_shoot_mass = n(),
+    
+    mean_root_mass = mean(root_dry_mass_g, na.rm = TRUE),
+    sd_root_mass = sd(root_dry_mass_g, na.rm = TRUE),
+    n_root_mass = n(),
+    
+    mean_root_to_shoot = mean(root_to_shoot, na.rm = TRUE),
+    sd_root_to_shoot = sd(root_to_shoot, na.rm = TRUE),
+    n_root_to_shoot = n(),
+    
+    n_sampled = n(),
+  ) 
+```
+
+
+### 3.3.1 Total Mass
+
+Visualize the total masses of the plants across WATER treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_11_dS,
+       mapping = aes(x = water_trt,
+                     y = total_mass,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_11_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_total_mass,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_total_mass + sd_total_mass, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_total_mass - sd_total_mass)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Total mass (g)",
+       title = "Total Mass across Water Treatments",
+       subtitle = "Just the 11 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(8)^(1/3) 
+# 4
+
+ggplot(data = final_mass_11_dS, # starting data frame
+       aes(x = total_mass)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_11_dS, # starting data frame
+       aes(sample = total_mass)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "blue") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  total_mass ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_11_dS # data: final_mass_9_dS
+)
+```
+We determined that group variances were not equal?
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  total_mass ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_11_dS
+)
+
+```
+We did not find a significant difference in total mass between wet
+treated  and dry 
+treated 
+
+```{r}
+#| label: cohen's d
+
+cohens_d(
+  total_mass ~ water_trt,
+  data = final_mass_11_dS
+  #pooled_sd = FALSE
+)
+
+```
+Cohen's d was -0.112. So water treatment had a negligible effect size. 
+
+
+### 3.4.2 Root to shoot
+Visualize root to shoot ratio across salinity treatments 
+```{r}
+
+# base layer is ggplot
+# data is final_mass
+ggplot(data = final_mass_11_dS,
+       mapping = aes(x = water_trt,
+                     y = root_to_shoot,
+                     color = water_trt
+                     )) +
+  # second layer is a jitter plot
+  geom_jitter(
+              # width is set to 0.15 to tighten the horizontal jitter
+              width = 0.17,  
+               # height is set to 0 so that there is no vertical jitter
+              height = 0,  
+              # open circle point shape for jitter points
+              shape = 21,   
+               # increasing transparency so that it is easier to see the mean
+              alpha = 0.8  
+             ) +  
+   geom_pointrange(data = water_mass_summary_11_ds,  
+                  # points displayed based on weekday vs weekend grouping
+                  mapping = aes(x = water_trt, 
+                                # mean computer time is the y value
+                                y = mean_root_to_shoot,   
+                                # upper bound is the mean plus 
+                                #  a standard deviation
+                                ymax = mean_root_to_shoot + sd_root_to_shoot, 
+                                # lower bound is the mean minus 
+                                #  a standard deviation
+                                ymin = mean_root_to_shoot - sd_root_to_shoot)) +
+  # changing axis labels and title
+  labs(x = "Water Treatment",
+       y = "Root to Shoot Ratio",
+       title = "Root to Shoot Ratio across Water Treatments",
+       subtitle = "Data just the 11 dS group"
+      ) +
+  # changing theme from default theme to theme_classic
+  # theme_classic creates a white panel with no grid lines
+  theme_classic() +
+  # removing the legend 
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: histogram
+
+# Rice rule formula 2n^(1/3) where n = number sampled
+2*(8)^(1/3) 
+# 4
+
+ggplot(data = final_mass_11_dS, # starting data frame
+       aes(x = root_to_shoot)) + # x-axis (no y-axis for histogram)
+  geom_histogram(bins = 4) + # number of bins from Rice Rule
+  facet_wrap(~water_trt) # creating two panels to show watersheds separately
+```
+basically all the data in one bin, except for one outlier in the dry group
+
+
+```{r}
+#| label: qq-plot
+
+# base layer: ggplot call
+ggplot(data = final_mass_11_dS, # starting data frame
+       aes(sample = root_to_shoot)) + # y-axis for QQ plot (no x-axis)
+  # first layer: QQ reference line 
+  geom_qq_line(color = "chocolate") + # showing this in blue so it's easier to see
+  # second layer: QQ plot
+  geom_qq() + 
+  # creating "facets"
+  facet_wrap(~water_trt) # show watersheds separately
+
+```
+Data follows qq line moderately well. For wet group there is big skew towards the upper end. 
+
+
+```{r}
+#| label: F-test
+
+# doing F test of equal variances
+var.test(
+  root_to_shoot ~ water_trt, # formula: response variable ~ grouping variable
+  data = final_mass_11_dS # data: final_ec
+)
+```
+We determined that group variances were not equal (F-test, F() = , p = ).
+
+
+```{r}
+#| label: t-test
+
+t.test(
+  # formula: response variable ~ grouping variable
+  root_to_shoot ~ water_trt, 
+  # argument for equal/unequal variances (variances should be equal)
+  var.equal = FALSE, 
+  # data: final_ec
+  data = final_mass_11_dS
+)
+
+```
+p - value = 0.2736. The difference in root to shoot ratio between wet vs dry groups was not statistically significant. 
+
+
+# Conclusions
+Write this out in fuller sentences later. With proper statistical wording.
+
+When comparing the stipa pulchra groups in wet (n = ), vs dry (n = ) across all salinity treatments, we did not find a statistically significant difference in total mass, live mass, root mass, nor root to shoot ratio. 
+
+I also compared the biomasses between wet vs dry for each salinity group. For 2.98, 5.58 and 11.41 dS there were no statistically significant differences in their total mass or root to shoot ratios. 
+
+Interestingly, when looking at the 9.98 dS group in particular, there was a statistically significant difference in total mass between the wet and dry treatment group. On average, the wet treatment group had a greater biomass. This might not translate to the field as these plants are growing in well draining and aerated soils compared to the more clay soils on the mesa. 
+
+Interpretation: Our data and analysis suggest that stipa pulchra with "wet feet" vs regular watering did not a strong impact on the successful growth of stipa pulchra overall.
+
+When looking at the 9.98 dS group, which is of interest, there is a statistically significant difference in biomass between wet vs dry treatment.
+
+
+
+
+
