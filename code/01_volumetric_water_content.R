@@ -3,6 +3,36 @@ source("code/00_setup.R")
 
 #Volumetric water content ----
 
+# define start and end date times and create metadata spine for hourly intervals
+
+pal_depth <- c("Shallow (15 cm)" = "lightblue", "Deep (45 cm)" = "darkblue")
+
+time_start <- as.POSIXct("2025-01-29 16:00:00")
+
+time_end <- as.POSIXct("2026-12-12 18:00:00")
+
+time_spine_vec <- seq(from = time_start, to = time_end, by = "1 hour")
+
+port_vec <- c("port1_vwc",
+              "port2_vwc",
+              "port3_vwc",
+              "port4_vwc",
+              "port5_vwc",
+              "port6_vwc")
+
+# create metadata spine
+metadata_spine <- expand.grid(timestamp = time_spine_vec, port = port_vec) |> 
+  mutate(depth = case_when(
+    port %in% c("port1_vwc", "port3_vwc", "port5_vwc") ~ "shallow",
+    port %in% c("port2_vwc", "port4_vwc", "port6_vwc") ~ "deep",
+    .default = NA
+  )) |> 
+  mutate(depth_label = case_when(
+    depth == "shallow" ~ "Shallow (15 cm)",
+    depth == "deep" ~ "Deep (45 cm)"
+  )) |> 
+  mutate(depth_label = fct_relevel(depth_label, "Shallow (15 cm)"))
+
 ## upper array ----
 # load in upper VWC sensor data
 
@@ -37,13 +67,46 @@ upper_long <- upper %>%
 # note, seems data logger reverted to default time sometime after 2025-10-29 02:00:00
 # time was reset on "2025-11-07 14:00:00"?
 
-lower <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 02Jun26-1329.xlsx", 
+lower_a <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 02Jun26-1329.xlsx", 
                            sheet = "Processed Data Config 1",
                            col_names = c("Timestamp",	"Port1_VWC",	"Port2_VWC",	"Port3_VWC",	"Port4_VWC",	"Port5_VWC",	"Port6_VWC",	"Bat_percent",	"mV.Battery.Voltage"),
                            col_types = c("date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), 
                            skip=3) %>% 
   clean_names() %>% 
   filter(timestamp > as.POSIXct("2025-01-01"))
+
+
+# read in data downloaded in fall 2026
+
+lower_b <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 03Jun26-0958.xlsx", 
+                           sheet = "Processed Data Config 1",
+                           col_names = c("Timestamp",	"Port1_VWC",	"Port2_VWC",	"Port3_VWC",	"Port4_VWC",	"Port5_VWC",	"Port6_VWC",	"Bat_percent",	"mV.Battery.Voltage"),
+                           col_types = c("date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), 
+                           skip=3) %>% 
+  clean_names() %>% 
+  filter(timestamp > as.POSIXct("2025-01-01"))
+
+
+lower_c <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 20Oct26-1306.xlsx", 
+                             sheet = "Processed Data Config 1",
+                             col_names = c("Timestamp",	"Port1_VWC",	"Port2_VWC",	"Port3_VWC",	"Port4_VWC",	"Port5_VWC",	"Port6_VWC",	"Bat_percent",	"mV.Battery.Voltage"),
+                             col_types = c("date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), 
+                             skip=3) %>% 
+  clean_names() %>% 
+  filter(timestamp > as.POSIXct("2025-01-01"))
+
+lower_d <- readxl::read_xlsx("data/volumetric_water_content/raw_sensor_data/Lower_z6B01383 12Nov26-1709.xlsx", 
+                             sheet = "Processed Data Config 1",
+                             col_names = c("Timestamp",	"Port1_VWC",	"Port2_VWC",	"Port3_VWC",	"Port4_VWC",	"Port5_VWC",	"Port6_VWC",	"Bat_percent",	"mV.Battery.Voltage"),
+                             col_types = c("date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), 
+                             skip=3) %>% 
+  clean_names() %>% 
+  filter(timestamp > as.POSIXct("2025-01-01"))
+
+lower <- bind_rows(lower_a,
+                   lower_b,
+                   lower_c,
+                   lower_d)
 
 lower_long <- lower %>% 
   # remove battery columns
@@ -57,6 +120,12 @@ lower_long <- lower %>%
     .default = NA
   )) %>% 
   mutate(depth = fct_relevel(depth, "shallow", "deep"))
+
+# join long data onto temporal spine
+
+lower_long_complete <- metadata_spine |> 
+  left_join(lower_long, by = join_by(timestamp, port, depth))
+
 
 ## visualize VWC ----
 
@@ -86,15 +155,17 @@ plot_upper2 <- ggplot(upper_long, aes(x=timestamp, y=vwc, col=port)) +
 plot_upper2
 
 # lower plots 
-plot_lower1 <- ggplot(lower_long, aes(x=timestamp, y=vwc, col=depth)) + 
+plot_lower1 <- ggplot(lower_long_complete, aes(x=timestamp, y=vwc, col=depth_label)) + 
   geom_line(aes(group = port)) +
   ggtitle("Lower mesa slope") +
-  scale_x_datetime(date_breaks = "1 month",
+  scale_x_datetime(date_breaks = "2 month",
                    date_labels = "%b '%y") + 
   LA_theme +
   vwc_scale +
   ylab("Volumetric water content") +
-  xlab("Date")
+  xlab("Date") +
+  labs(color = "Depth") +
+  scale_color_manual(values = pal_depth)
 
 plot_lower1
 
@@ -141,6 +212,14 @@ ggsave("figures/vwc/Mesa_Slope_VWC_2026-03-02.pdf")
 #        height = 4.5)
 
 
-ggsave("figures/vwc/VWC_lower_2026-06-02.pdf", plot_lower1,
+# ggsave("figures/vwc/VWC_lower_2026-06-02.pdf", plot_lower1,
+#        width = 11,
+#        height = 4.5)
+
+# save latest version of lower plot data
+ggsave(paste0("figures/vwc/NCOS_mesa_lower_slope_vwc_",
+              Sys.Date(),
+              ".pdf"),
+       plot_lower1,
        width = 11,
        height = 4.5)
